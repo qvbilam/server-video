@@ -1,0 +1,8 @@
+syntax = "proto3";
+package video.v1;
+option go_package="video/api/v1;proto";
+
+message PageRequest{
+  int64 page = 1;
+  int64 perPage = 2;
+}

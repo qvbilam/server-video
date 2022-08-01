@@ -1,0 +1,84 @@
+syntax = "proto3";
+package video.v1;
+option go_package="video/api/v1;proto";
+import "google/protobuf/empty.proto";
+import "category.proto";
+import "region.proto";
+import "page.proto";
+
+message VideoResponse {
+  int64 id = 1;
+  int64 user_id = 2;
+  RegionResponse region = 3;
+  CategoryResponse category = 4;
+  int64 name = 5;
+  int64 introduction = 6;
+  int64 icon = 7;
+  int64 horizontal_icon = 8;
+  int64 score = 9;
+  int64 count = 10;
+  int64 total_count = 11;
+  int64 favorite_count = 12;
+  int64 like_count = 13;
+  int64 play_count = 14;
+  int64 barrage_count = 15;
+  bool is_recommend = 16;
+  bool is_hot = 17;
+  bool is_end = 18;
+  int64 created_at = 19;
+  int64 updated_at = 20;
+}
+
+message UpdateVideoRequest{
+  int64 id = 1;
+  int64 userId = 2;
+  int64 regionId = 3;
+  int64 categoryId = 4;
+  int64 name = 5;
+  int64 introduction = 6;
+  int64 icon = 7;
+  int64 horizontalIcon = 8;
+  int64 score = 9;
+  int64 count = 10;
+  int64 totalCount = 11;
+  int64 favoriteCount = 12;
+  int64 likeCount = 13;
+  int64 playCount = 14;
+  int64 barrageCount = 15;
+  bool isRecommend = 16;
+  bool isHot = 17;
+  bool isEnd = 18;
+  bool isVisible = 19;
+}
+
+message SearchVideoRequest{
+  repeated int64 id = 1;
+  int64 userId = 2;
+  int64 regionId = 3;
+  int64 categoryId = 4;
+  string keyword = 5;
+  string sort = 6;
+  bool isRecommend = 7;
+  bool isHot = 8;
+  bool isEnd = 9;
+  bool isVisible = 10;
+}
+
+message GetVideoRequest{
+  int64 id = 1;
+  SearchVideoRequest search = 2;
+  PageRequest page = 3;
+}
+
+message VideosResponse{
+  int64 total = 1;
+  repeated VideoResponse videos = 2;
+}
+
+service Video{
+  rpc Create (UpdateVideoRequest) returns (VideoResponse); // 创建视频
+  rpc Update (UpdateVideoRequest) returns (google.protobuf.Empty); // 更新视频
+  rpc Delete (UpdateVideoRequest) returns (google.protobuf.Empty); // 删除视频
+  rpc Get(GetVideoRequest) returns (VideosResponse); // 视频列表
+  rpc GetDetail(GetVideoRequest) returns (VideoResponse); // 视频详情
+}
