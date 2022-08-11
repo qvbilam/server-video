@@ -108,15 +108,37 @@ type Barrage struct {
 func (video *Video) AfterCreate(tx *gorm.DB) error {
 	esModel := videoModelToEsIndex(video)
 	// 写入es
-	if _, err := global.ES.
+	_, err := global.ES.
 		Index().
 		Index(VideoES{}.GetIndexName()).
 		BodyJson(esModel).
 		Id(strconv.Itoa(int(video.ID))).
-		Do(context.Background()); err != nil {
-		return err
-	}
-	return nil
+		Do(context.Background())
+	return err
+}
+
+func (video *Video) AfterUpdate(tx *gorm.DB) error {
+	esModel := videoModelToEsIndex(video)
+	// 更新es. 指定 id 防止重复
+	_, err := global.ES.
+		Update().
+		Index(VideoES{}.GetIndexName()).
+		Doc(esModel).
+		Id(strconv.Itoa(int(video.ID))).
+		Do(context.Background())
+
+	return err
+}
+
+func (video *Video) AfterDelete(tx *gorm.DB) error {
+	// 删除 es 数据
+	_, err := global.ES.
+		Delete().
+		Index(VideoES{}.GetIndexName()).
+		Id(strconv.Itoa(int(video.ID))).
+		Do(context.Background())
+
+	return err
 }
 
 func videoModelToEsIndex(video *Video) *VideoES {

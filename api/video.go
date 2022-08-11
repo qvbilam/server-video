@@ -14,8 +14,6 @@ type VideoServer struct {
 }
 
 func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequest) (*proto.VideoResponse, error) {
-	// todo 获取用户信息 && 验证用户
-
 	// todo 验证分类 区分用户角色
 	categoryBusiness := business.Category{Id: request.CategoryId}
 	if _, err := categoryBusiness.Exists(); err != nil {
@@ -28,20 +26,52 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 		//return nil, err
 	}
 
-	entity, err := business.CreateVideo(request)
+	videoBusiness := business.Video{
+		UserId:         request.UserId,
+		RegionId:       request.RegionId,
+		CategoryId:     request.CategoryId,
+		Name:           request.Name,
+		Introduction:   request.Introduction,
+		Icon:           request.Icon,
+		HorizontalIcon: request.HorizontalIcon,
+		TotalCount:     request.TotalCount,
+	}
+	videoId, err := videoBusiness.Create()
 	if err != nil {
 		return nil, err
 	}
 
-	return &proto.VideoResponse{Id: entity.ID}, nil
+	return &proto.VideoResponse{Id: videoId}, nil
 }
 
 func (s *VideoServer) Update(ctx context.Context, request *proto.UpdateVideoRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+	videoBusiness := business.Video{
+		Id:             request.Id,
+		UserId:         request.UserId,
+		RegionId:       request.RegionId,
+		CategoryId:     request.CategoryId,
+		Name:           request.Name,
+		Introduction:   request.Introduction,
+		Icon:           request.Icon,
+		HorizontalIcon: request.HorizontalIcon,
+		TotalCount:     request.TotalCount,
+		Score:          float64(request.Score),
+	}
+	_, err := videoBusiness.Update()
+	if err != nil {
+		return nil, status.Errorf(codes.Unimplemented, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (s *VideoServer) Delete(ctx context.Context, request *proto.UpdateVideoRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+	videoBusiness := business.Video{Id: request.Id}
+	_, err := videoBusiness.Delete()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (s *VideoServer) Get(ctx context.Context, request *proto.GetVideoRequest) (*proto.VideosResponse, error) {
