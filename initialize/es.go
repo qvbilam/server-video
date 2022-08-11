@@ -1,12 +1,14 @@
 package initialize
 
 import (
+	"context"
 	"fmt"
 	"github.com/olivere/elastic/v7"
 	"go.uber.org/zap"
 	"log"
 	"os"
 	"video/global"
+	"video/model"
 )
 
 func InitElasticSearch() {
@@ -22,5 +24,26 @@ func InitElasticSearch() {
 		zap.S().Panicf("连接es异常: %s", err.Error())
 	}
 
-	// 创建mapping
+	// 创建 video mapping
+	createVideoIndex()
+}
+
+func createVideoIndex() {
+	exists, err := global.ES.IndexExists(model.VideoES{}.GetIndexName()).Do(context.Background())
+	if err != nil {
+		zap.S().Panicf("视频索引异常: %s", err)
+	}
+	if !exists { // 创建索引
+		createIndex, err := global.ES.
+			CreateIndex(model.VideoES{}.GetIndexName()).
+			BodyString(model.VideoES{}.GetMapping()).
+			Do(context.Background())
+		if err != nil {
+			zap.S().Panicf("创建视频索引异常: %s", err)
+		}
+
+		if !createIndex.Acknowledged {
+			// Not acknowledged
+		}
+	}
 }

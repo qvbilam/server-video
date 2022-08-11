@@ -1,0 +1,13 @@
+### 获取视频
+GET video/_search
+
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "测试",
+        "fuzziness": 1
+      }
+    }
+  }
+}

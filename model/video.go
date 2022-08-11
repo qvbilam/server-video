@@ -1,5 +1,12 @@
 package model
 
+import (
+	"context"
+	"gorm.io/gorm"
+	"strconv"
+	"video/global"
+)
+
 // Region 区域
 type Region struct {
 	IDModel
@@ -96,4 +103,41 @@ type Barrage struct {
 	Content string `gorm:"type:varchar(255); not null default '';comment:内容"`
 	Visible
 	DateModel
+}
+
+func (video *Video) AfterCreate(tx *gorm.DB) error {
+	esModel := videoModelToEsIndex(video)
+	// 写入es
+	if _, err := global.ES.
+		Index().
+		Index(VideoES{}.GetIndexName()).
+		BodyJson(esModel).
+		Id(strconv.Itoa(int(video.ID))).
+		Do(context.Background()); err != nil {
+		return err
+	}
+	return nil
+}
+
+func videoModelToEsIndex(video *Video) *VideoES {
+	return &VideoES{
+		ID:            video.ID,
+		UserID:        video.UserID,
+		RegionID:      video.RegionId,
+		CategoryID:    video.CategoryId,
+		Count:         video.Count,
+		TotalCount:    video.TotalCount,
+		FavoriteCount: video.FavoriteCount,
+		LikeCount:     video.LikeCount,
+		PlayCount:     video.PlayCount,
+		BarrageCount:  video.BarrageCount,
+		IsRecommend:   video.IsRecommend,
+		IsNew:         video.IsNew,
+		IsHot:         video.IsHot,
+		IsEnd:         video.IsEnd,
+		IsVisible:     video.IsVisible,
+		Score:         video.Score,
+		Name:          video.Name,
+		Introduce:     video.Introduction,
+	}
 }

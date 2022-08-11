@@ -30,10 +30,10 @@ type VideoResponse struct {
 	UserId         int64             `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Region         *RegionResponse   `protobuf:"bytes,3,opt,name=region,proto3" json:"region,omitempty"`
 	Category       *CategoryResponse `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
-	Name           int64             `protobuf:"varint,5,opt,name=name,proto3" json:"name,omitempty"`
-	Introduction   int64             `protobuf:"varint,6,opt,name=introduction,proto3" json:"introduction,omitempty"`
-	Icon           int64             `protobuf:"varint,7,opt,name=icon,proto3" json:"icon,omitempty"`
-	HorizontalIcon int64             `protobuf:"varint,8,opt,name=horizontal_icon,json=horizontalIcon,proto3" json:"horizontal_icon,omitempty"`
+	Name           string            `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Introduction   string            `protobuf:"bytes,6,opt,name=introduction,proto3" json:"introduction,omitempty"`
+	Icon           string            `protobuf:"bytes,7,opt,name=icon,proto3" json:"icon,omitempty"`
+	HorizontalIcon string            `protobuf:"bytes,8,opt,name=horizontal_icon,json=horizontalIcon,proto3" json:"horizontal_icon,omitempty"`
 	Score          int64             `protobuf:"varint,9,opt,name=score,proto3" json:"score,omitempty"`
 	Count          int64             `protobuf:"varint,10,opt,name=count,proto3" json:"count,omitempty"`
 	TotalCount     int64             `protobuf:"varint,11,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
@@ -108,32 +108,32 @@ func (x *VideoResponse) GetCategory() *CategoryResponse {
 	return nil
 }
 
-func (x *VideoResponse) GetName() int64 {
+func (x *VideoResponse) GetName() string {
 	if x != nil {
 		return x.Name
 	}
-	return 0
+	return ""
 }
 
-func (x *VideoResponse) GetIntroduction() int64 {
+func (x *VideoResponse) GetIntroduction() string {
 	if x != nil {
 		return x.Introduction
 	}
-	return 0
+	return ""
 }
 
-func (x *VideoResponse) GetIcon() int64 {
+func (x *VideoResponse) GetIcon() string {
 	if x != nil {
 		return x.Icon
 	}
-	return 0
+	return ""
 }
 
-func (x *VideoResponse) GetHorizontalIcon() int64 {
+func (x *VideoResponse) GetHorizontalIcon() string {
 	if x != nil {
 		return x.HorizontalIcon
 	}
-	return 0
+	return ""
 }
 
 func (x *VideoResponse) GetScore() int64 {
@@ -225,25 +225,25 @@ type UpdateVideoRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id             int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	UserId         int64 `protobuf:"varint,2,opt,name=userId,proto3" json:"userId,omitempty"`
-	RegionId       int64 `protobuf:"varint,3,opt,name=regionId,proto3" json:"regionId,omitempty"`
-	CategoryId     int64 `protobuf:"varint,4,opt,name=categoryId,proto3" json:"categoryId,omitempty"`
-	Name           int64 `protobuf:"varint,5,opt,name=name,proto3" json:"name,omitempty"`
-	Introduction   int64 `protobuf:"varint,6,opt,name=introduction,proto3" json:"introduction,omitempty"`
-	Icon           int64 `protobuf:"varint,7,opt,name=icon,proto3" json:"icon,omitempty"`
-	HorizontalIcon int64 `protobuf:"varint,8,opt,name=horizontalIcon,proto3" json:"horizontalIcon,omitempty"`
-	Score          int64 `protobuf:"varint,9,opt,name=score,proto3" json:"score,omitempty"`
-	Count          int64 `protobuf:"varint,10,opt,name=count,proto3" json:"count,omitempty"`
-	TotalCount     int64 `protobuf:"varint,11,opt,name=totalCount,proto3" json:"totalCount,omitempty"`
-	FavoriteCount  int64 `protobuf:"varint,12,opt,name=favoriteCount,proto3" json:"favoriteCount,omitempty"`
-	LikeCount      int64 `protobuf:"varint,13,opt,name=likeCount,proto3" json:"likeCount,omitempty"`
-	PlayCount      int64 `protobuf:"varint,14,opt,name=playCount,proto3" json:"playCount,omitempty"`
-	BarrageCount   int64 `protobuf:"varint,15,opt,name=barrageCount,proto3" json:"barrageCount,omitempty"`
-	IsRecommend    bool  `protobuf:"varint,16,opt,name=isRecommend,proto3" json:"isRecommend,omitempty"`
-	IsHot          bool  `protobuf:"varint,17,opt,name=isHot,proto3" json:"isHot,omitempty"`
-	IsEnd          bool  `protobuf:"varint,18,opt,name=isEnd,proto3" json:"isEnd,omitempty"`
-	IsVisible      bool  `protobuf:"varint,19,opt,name=isVisible,proto3" json:"isVisible,omitempty"`
+	Id             int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId         int64  `protobuf:"varint,2,opt,name=userId,proto3" json:"userId,omitempty"`
+	RegionId       int64  `protobuf:"varint,3,opt,name=regionId,proto3" json:"regionId,omitempty"`
+	CategoryId     int64  `protobuf:"varint,4,opt,name=categoryId,proto3" json:"categoryId,omitempty"`
+	Name           string `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Introduction   string `protobuf:"bytes,6,opt,name=introduction,proto3" json:"introduction,omitempty"`
+	Icon           string `protobuf:"bytes,7,opt,name=icon,proto3" json:"icon,omitempty"`
+	HorizontalIcon string `protobuf:"bytes,8,opt,name=horizontalIcon,proto3" json:"horizontalIcon,omitempty"`
+	Score          int64  `protobuf:"varint,9,opt,name=score,proto3" json:"score,omitempty"`
+	Count          int64  `protobuf:"varint,10,opt,name=count,proto3" json:"count,omitempty"`
+	TotalCount     int64  `protobuf:"varint,11,opt,name=totalCount,proto3" json:"totalCount,omitempty"`
+	FavoriteCount  int64  `protobuf:"varint,12,opt,name=favoriteCount,proto3" json:"favoriteCount,omitempty"`
+	LikeCount      int64  `protobuf:"varint,13,opt,name=likeCount,proto3" json:"likeCount,omitempty"`
+	PlayCount      int64  `protobuf:"varint,14,opt,name=playCount,proto3" json:"playCount,omitempty"`
+	BarrageCount   int64  `protobuf:"varint,15,opt,name=barrageCount,proto3" json:"barrageCount,omitempty"`
+	IsRecommend    bool   `protobuf:"varint,16,opt,name=isRecommend,proto3" json:"isRecommend,omitempty"`
+	IsHot          bool   `protobuf:"varint,17,opt,name=isHot,proto3" json:"isHot,omitempty"`
+	IsEnd          bool   `protobuf:"varint,18,opt,name=isEnd,proto3" json:"isEnd,omitempty"`
+	IsVisible      bool   `protobuf:"varint,19,opt,name=isVisible,proto3" json:"isVisible,omitempty"`
 }
 
 func (x *UpdateVideoRequest) Reset() {
@@ -306,32 +306,32 @@ func (x *UpdateVideoRequest) GetCategoryId() int64 {
 	return 0
 }
 
-func (x *UpdateVideoRequest) GetName() int64 {
+func (x *UpdateVideoRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
-	return 0
+	return ""
 }
 
-func (x *UpdateVideoRequest) GetIntroduction() int64 {
+func (x *UpdateVideoRequest) GetIntroduction() string {
 	if x != nil {
 		return x.Introduction
 	}
-	return 0
+	return ""
 }
 
-func (x *UpdateVideoRequest) GetIcon() int64 {
+func (x *UpdateVideoRequest) GetIcon() string {
 	if x != nil {
 		return x.Icon
 	}
-	return 0
+	return ""
 }
 
-func (x *UpdateVideoRequest) GetHorizontalIcon() int64 {
+func (x *UpdateVideoRequest) GetHorizontalIcon() string {
 	if x != nil {
 		return x.HorizontalIcon
 	}
-	return 0
+	return ""
 }
 
 func (x *UpdateVideoRequest) GetScore() int64 {
@@ -668,12 +668,12 @@ var file_video_proto_rawDesc = []byte{
 	0x76, 0x69, 0x64, 0x65, 0x6f, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72,
 	0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x08, 0x63, 0x61, 0x74, 0x65, 0x67,
 	0x6f, 0x72, 0x79, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28,
-	0x03, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x22, 0x0a, 0x0c, 0x69, 0x6e, 0x74, 0x72, 0x6f,
-	0x64, 0x75, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x06, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0c, 0x69,
+	0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x22, 0x0a, 0x0c, 0x69, 0x6e, 0x74, 0x72, 0x6f,
+	0x64, 0x75, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x69,
 	0x6e, 0x74, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x12, 0x0a, 0x04, 0x69,
-	0x63, 0x6f, 0x6e, 0x18, 0x07, 0x20, 0x01, 0x28, 0x03, 0x52, 0x04, 0x69, 0x63, 0x6f, 0x6e, 0x12,
+	0x63, 0x6f, 0x6e, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x69, 0x63, 0x6f, 0x6e, 0x12,
 	0x27, 0x0a, 0x0f, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x6f, 0x6e, 0x74, 0x61, 0x6c, 0x5f, 0x69, 0x63,
-	0x6f, 0x6e, 0x18, 0x08, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0e, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x6f,
+	0x6f, 0x6e, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0e, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x6f,
 	0x6e, 0x74, 0x61, 0x6c, 0x49, 0x63, 0x6f, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x73, 0x63, 0x6f, 0x72,
 	0x65, 0x18, 0x09, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x73, 0x63, 0x6f, 0x72, 0x65, 0x12, 0x14,
 	0x0a, 0x05, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x63,
@@ -705,12 +705,12 @@ var file_video_proto_rawDesc = []byte{
 	0x08, 0x72, 0x65, 0x67, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x12, 0x1e, 0x0a, 0x0a, 0x63, 0x61, 0x74,
 	0x65, 0x67, 0x6f, 0x72, 0x79, 0x49, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0a, 0x63,
 	0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x49, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d,
-	0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x03, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x22, 0x0a,
+	0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x22, 0x0a,
 	0x0c, 0x69, 0x6e, 0x74, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x06, 0x20,
-	0x01, 0x28, 0x03, 0x52, 0x0c, 0x69, 0x6e, 0x74, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x69, 0x6f,
-	0x6e, 0x12, 0x12, 0x0a, 0x04, 0x69, 0x63, 0x6f, 0x6e, 0x18, 0x07, 0x20, 0x01, 0x28, 0x03, 0x52,
+	0x01, 0x28, 0x09, 0x52, 0x0c, 0x69, 0x6e, 0x74, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x69, 0x6f,
+	0x6e, 0x12, 0x12, 0x0a, 0x04, 0x69, 0x63, 0x6f, 0x6e, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52,
 	0x04, 0x69, 0x63, 0x6f, 0x6e, 0x12, 0x26, 0x0a, 0x0e, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x6f, 0x6e,
-	0x74, 0x61, 0x6c, 0x49, 0x63, 0x6f, 0x6e, 0x18, 0x08, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0e, 0x68,
+	0x74, 0x61, 0x6c, 0x49, 0x63, 0x6f, 0x6e, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0e, 0x68,
 	0x6f, 0x72, 0x69, 0x7a, 0x6f, 0x6e, 0x74, 0x61, 0x6c, 0x49, 0x63, 0x6f, 0x6e, 0x12, 0x14, 0x0a,
 	0x05, 0x73, 0x63, 0x6f, 0x72, 0x65, 0x18, 0x09, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x73, 0x63,
 	0x6f, 0x72, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x0a, 0x20, 0x01,

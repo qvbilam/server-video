@@ -18,7 +18,8 @@ func main() {
 	initialize.InitLogger()
 	initialize.InitConfig()
 	initialize.InitDatabase()
-	
+	initialize.InitElasticSearch()
+
 	// 注册服务
 	server := grpc.NewServer()
 	proto.RegisterCategoryServer(server, &api.CategoryServer{})

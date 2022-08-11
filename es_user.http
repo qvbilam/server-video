@@ -1,0 +1,71 @@
+### 获取用户
+POST user_test/_bulk
+
+{"index":{"_id":"1"}}
+{"name" : "二滑大魔王","content":"你好啊"}
+{"index":{"_id":"2"}}
+{"name" : "二滑小天使","content":"你好啊"}
+{"index":{"_id":"3"}}
+{"name" : "滑水","content":"你好啊"}
+{"index":{"_id":"4"}}
+{"name" : "123","content":"二了吧唧的"}
+{"index":{"_id":"5"}}
+{"name" : "今天星期二", "content": "好烦"}
+{"index":{"_id":"6"}}
+{"name" : "滑冰去吗,小二货", "content": "无聊"}
+{"index":{"_id":"7"}}
+{"name" : "user Gyi", "content": "hello user"}
+{"index":{"_id":"8"}}
+{"name" : "user Gone", "content": "study search"}
+
+### 搜索用户
+GET user/_search
+
+
+### 搜索用户
+GET user_test/_search
+
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "usre",
+        "fuzziness": 1
+      }
+    }
+  }
+}
+
+### 搜索用户
+GET user_test/_search
+
+{
+    "query":{
+        "multi_match":{
+            "query":"二滑大魔王",
+            "fields":[
+                "name^2",
+                "content"
+            ]
+        }
+    }
+}
+
+### 搜索用户
+GET user_test/_search
+
+{
+    "query":{
+        "query_string":{
+            "query":"二",
+            "fields":[
+                "name",
+                "content"
+            ]
+        }
+    }
+}
+
+
+### 删除索引
+DELETE user_test
