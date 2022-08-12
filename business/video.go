@@ -52,6 +52,8 @@ type Video struct {
 	// 分页
 	Page    int64
 	PerPage int64
+	// 排序方式
+	Sort string
 }
 
 func (s *Video) Create() (int64, error) {
@@ -152,16 +154,18 @@ func (s *Video) Detail() (*model.Video, error) {
 }
 
 func (s *Video) List() (*VideoListResponse, error) {
+	switch {
+	case s.PerPage <= 0:
+		s.PerPage = 10
+	case s.PerPage > 1000:
+		s.PerPage = 1000
+	}
 	// 分页数据
 	if s.Page == 0 {
 		s.Page = 1
 	}
-	switch {
-	case s.PerPage <= 0:
-		s.Page = 10
-	case s.PerPage > 1000:
-		s.PerPage = 1000
-	}
+	s.Page = (s.Page - 1) * s.PerPage
+
 	// 多级分类
 	if s.CategoryId > 0 {
 		cs := Category{}
@@ -179,12 +183,14 @@ func (s *Video) List() (*VideoListResponse, error) {
 		Search().
 		Index(model.VideoES{}.GetIndexName()).
 		Query(q).
+		SortWithInfo(s.GetESVideoSortInfo()).
 		From(int(s.Page)).
 		Size(int(s.PerPage)).
 		Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
+
 	// 获取总数
 	total := result.Hits.TotalHits.Value
 
@@ -275,4 +281,22 @@ func (s *Video) GetVideosESQuery() *elastic.BoolQuery {
 	}
 
 	return q
+}
+
+func (s *Video) GetESVideoSortInfo() elastic.SortInfo {
+	sort := elastic.SortInfo{
+		Field:     "play_count",
+		Ascending: false,
+	}
+
+	if s.Sort != "" {
+		if string(s.Sort[0]) == "-" {
+			sort.Field = s.Sort[0:]
+		} else {
+			sort.Field = s.Sort
+			sort.Ascending = true
+		}
+	}
+
+	return sort
 }

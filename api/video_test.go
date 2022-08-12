@@ -46,13 +46,33 @@ func TestVideoServer_Create(t *testing.T) {
 // 获取视频
 func TestVideoServer_Get(t *testing.T) {
 	initClient()
-	response, err := Client.Get(context.Background(), &proto.GetVideoRequest{
-		Search: nil,
-		Page:   nil,
+	response, err := Client.Get(context.Background(), &proto.SearchVideoRequest{
+		Keyword: "进击人",
+		Page:    1,
+		PerPage: 10,
 	})
 	if err != nil {
 		t.Error(err.Error())
 	}
 
 	fmt.Println(response)
+}
+
+func TestVideoServer_Update(t *testing.T) {
+
+	sorts := []string{
+		"-play_count",
+		"play_count",
+	}
+
+	for _, s := range sorts {
+		if string(s[0]) == "-" {
+			fmt.Printf("sort type: %s;", string(s[0]))
+			fmt.Printf("sort field: %s\n", s[0:])
+		} else {
+			fmt.Printf("sort type: %s;", string(s[0]))
+			fmt.Printf("sort field: %s\n", s[0:])
+		}
+	}
+
 }
