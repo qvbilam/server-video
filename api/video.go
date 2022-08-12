@@ -7,6 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	proto "video/api/v1"
 	"video/business"
+	"video/model"
 )
 
 type VideoServer struct {
@@ -74,10 +75,79 @@ func (s *VideoServer) Delete(ctx context.Context, request *proto.UpdateVideoRequ
 	return &emptypb.Empty{}, nil
 }
 
-func (s *VideoServer) Get(ctx context.Context, request *proto.GetVideoRequest) (*proto.VideosResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (s *VideoServer) Get(ctx context.Context, request *proto.SearchVideoRequest) (*proto.VideosResponse, error) {
+	// 查询列表
+	videoBusiness := searchRequestToCondition(request)
+	res, err := videoBusiness.List()
+	if err != nil {
+		return nil, err
+	}
+
+	// 结果转换
+	response := proto.VideosResponse{Total: res.Total}
+	for _, video := range res.Videos {
+		videoResponse := modelToResponse(video)
+		response.Videos = append(response.Videos, &videoResponse)
+	}
+
+	return &response, nil
 }
 
 func (s *VideoServer) GetDetail(ctx context.Context, request *proto.GetVideoRequest) (*proto.VideoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDetail not implemented")
+	videoBusiness := business.Video{}
+	res, err := videoBusiness.Detail()
+	if err != nil {
+		return nil, err
+	}
+	response := modelToResponse(*res)
+	return &response, nil
+}
+
+func searchRequestToCondition(request *proto.SearchVideoRequest) business.Video {
+	return business.Video{
+		UserId:           request.UserId,
+		RegionId:         request.RegionId,
+		CategoryId:       request.CategoryId,
+		Keyword:          request.Keyword,
+		IsRecommend:      request.IsRecommend,
+		IsNew:            request.IsNew,
+		IsHot:            request.IsHot,
+		IsEnd:            request.IsEnd,
+		IsVisible:        request.IsVisible,
+		FavoriteCountMin: request.FavoriteCountMin,
+		FavoriteCountMax: request.FavoriteCountMax,
+		LikeCountMin:     request.LikeCountMin,
+		LikeCountMax:     request.LikeCountMax,
+		PlayCountMin:     request.PlayCountMin,
+		PlayCountMax:     request.PlayCountMax,
+		BarrageCountMin:  request.BarrageCountMin,
+		BarrageCountMax:  request.BarrageCountMax,
+		Page:             request.Page,
+		PerPage:          request.PerPage,
+	}
+}
+
+func modelToResponse(video model.Video) proto.VideoResponse {
+	return proto.VideoResponse{
+		Id:             video.ID,
+		UserId:         video.UserID,
+		Region:         nil,
+		Category:       nil,
+		Name:           video.Name,
+		Introduction:   video.Introduction,
+		Icon:           video.Icon,
+		HorizontalIcon: video.HorizontalIcon,
+		Score:          float32(video.Score),
+		Count:          video.Count,
+		TotalCount:     video.TotalCount,
+		FavoriteCount:  video.FavoriteCount,
+		LikeCount:      video.LikeCount,
+		PlayCount:      video.PlayCount,
+		BarrageCount:   video.BarrageCount,
+		IsRecommend:    video.IsRecommend,
+		IsHot:          video.IsHot,
+		IsEnd:          video.IsEnd,
+		CreatedAt:      video.CreatedAt.Unix(),
+		UpdatedAt:      video.UpdatedAt.Unix(),
+	}
 }

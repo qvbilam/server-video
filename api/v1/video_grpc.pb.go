@@ -26,7 +26,7 @@ type VideoClient interface {
 	Create(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*VideoResponse, error)
 	Update(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Get(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*VideosResponse, error)
+	Get(ctx context.Context, in *SearchVideoRequest, opts ...grpc.CallOption) (*VideosResponse, error)
 	GetDetail(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*VideoResponse, error)
 }
 
@@ -65,7 +65,7 @@ func (c *videoClient) Delete(ctx context.Context, in *UpdateVideoRequest, opts .
 	return out, nil
 }
 
-func (c *videoClient) Get(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*VideosResponse, error) {
+func (c *videoClient) Get(ctx context.Context, in *SearchVideoRequest, opts ...grpc.CallOption) (*VideosResponse, error) {
 	out := new(VideosResponse)
 	err := c.cc.Invoke(ctx, "/video.v1.Video/Get", in, out, opts...)
 	if err != nil {
@@ -90,7 +90,7 @@ type VideoServer interface {
 	Create(context.Context, *UpdateVideoRequest) (*VideoResponse, error)
 	Update(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error)
 	Delete(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error)
-	Get(context.Context, *GetVideoRequest) (*VideosResponse, error)
+	Get(context.Context, *SearchVideoRequest) (*VideosResponse, error)
 	GetDetail(context.Context, *GetVideoRequest) (*VideoResponse, error)
 	mustEmbedUnimplementedVideoServer()
 }
@@ -108,7 +108,7 @@ func (UnimplementedVideoServer) Update(context.Context, *UpdateVideoRequest) (*e
 func (UnimplementedVideoServer) Delete(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedVideoServer) Get(context.Context, *GetVideoRequest) (*VideosResponse, error) {
+func (UnimplementedVideoServer) Get(context.Context, *SearchVideoRequest) (*VideosResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedVideoServer) GetDetail(context.Context, *GetVideoRequest) (*VideoResponse, error) {
@@ -182,7 +182,7 @@ func _Video_Delete_Handler(srv interface{}, ctx context.Context, dec func(interf
 }
 
 func _Video_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetVideoRequest)
+	in := new(SearchVideoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func _Video_Get_Handler(srv interface{}, ctx context.Context, dec func(interface
 		FullMethod: "/video.v1.Video/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VideoServer).Get(ctx, req.(*GetVideoRequest))
+		return srv.(VideoServer).Get(ctx, req.(*SearchVideoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

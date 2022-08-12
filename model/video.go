@@ -20,8 +20,9 @@ type Region struct {
 // Category 分类
 type Category struct {
 	IDModel
-	Name string `gorm:"type:varchar(255); not null default '';comment:名称"`
-	Icon string `gorm:"type:varchar(255); not null default '';comment:横版图标"`
+	Name  string `gorm:"type:varchar(255); not null default '';comment:名称"`
+	Icon  string `gorm:"type:varchar(255); not null default '';comment:横版图标"`
+	Level int32  `gorm:"type:int(11);not null;default:0;comment:分类等级"`
 	Visible
 	DateModel
 	DeletedModel
