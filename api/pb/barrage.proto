@@ -1,6 +1,6 @@
 syntax = "proto3";
-package video.v1;
-option go_package="video/api/v1;proto";
+package video.pb;
+option go_package="video/api/pb;proto";
 import "google/protobuf/empty.proto";
 import "page.proto";
 

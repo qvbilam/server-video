@@ -39,7 +39,7 @@ func NewCategoryClient(cc grpc.ClientConnInterface) CategoryClient {
 
 func (c *categoryClient) Create(ctx context.Context, in *UpdateCategoryRequest, opts ...grpc.CallOption) (*CategoryResponse, error) {
 	out := new(CategoryResponse)
-	err := c.cc.Invoke(ctx, "/video.v1.Category/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Category/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (c *categoryClient) Create(ctx context.Context, in *UpdateCategoryRequest, 
 
 func (c *categoryClient) Update(ctx context.Context, in *UpdateCategoryRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/video.v1.Category/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Category/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *categoryClient) Update(ctx context.Context, in *UpdateCategoryRequest, 
 
 func (c *categoryClient) Delete(ctx context.Context, in *UpdateCategoryRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/video.v1.Category/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Category/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *categoryClient) Delete(ctx context.Context, in *UpdateCategoryRequest, 
 
 func (c *categoryClient) Get(ctx context.Context, in *GetCategoryRequest, opts ...grpc.CallOption) (*GetCategoryResponse, error) {
 	out := new(GetCategoryResponse)
-	err := c.cc.Invoke(ctx, "/video.v1.Category/Get", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Category/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func _Category_Create_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Category/Create",
+		FullMethod: "/video.pb.Category/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CategoryServer).Create(ctx, req.(*UpdateCategoryRequest))
@@ -141,7 +141,7 @@ func _Category_Update_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Category/Update",
+		FullMethod: "/video.pb.Category/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CategoryServer).Update(ctx, req.(*UpdateCategoryRequest))
@@ -159,7 +159,7 @@ func _Category_Delete_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Category/Delete",
+		FullMethod: "/video.pb.Category/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CategoryServer).Delete(ctx, req.(*UpdateCategoryRequest))
@@ -177,7 +177,7 @@ func _Category_Get_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Category/Get",
+		FullMethod: "/video.pb.Category/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CategoryServer).Get(ctx, req.(*GetCategoryRequest))
@@ -189,7 +189,7 @@ func _Category_Get_Handler(srv interface{}, ctx context.Context, dec func(interf
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Category_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "video.v1.Category",
+	ServiceName: "video.pb.Category",
 	HandlerType: (*CategoryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -39,7 +39,7 @@ func NewBarrageClient(cc grpc.ClientConnInterface) BarrageClient {
 
 func (c *barrageClient) Create(ctx context.Context, in *UpdateBarrageRequest, opts ...grpc.CallOption) (*BarrageResponse, error) {
 	out := new(BarrageResponse)
-	err := c.cc.Invoke(ctx, "/video.v1.Barrage/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Barrage/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (c *barrageClient) Create(ctx context.Context, in *UpdateBarrageRequest, op
 
 func (c *barrageClient) Update(ctx context.Context, in *UpdateBarrageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/video.v1.Barrage/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Barrage/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *barrageClient) Update(ctx context.Context, in *UpdateBarrageRequest, op
 
 func (c *barrageClient) Delete(ctx context.Context, in *UpdateBarrageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/video.v1.Barrage/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Barrage/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *barrageClient) Delete(ctx context.Context, in *UpdateBarrageRequest, op
 
 func (c *barrageClient) Get(ctx context.Context, in *GetBarragesRequest, opts ...grpc.CallOption) (*GetBarrageResponse, error) {
 	out := new(GetBarrageResponse)
-	err := c.cc.Invoke(ctx, "/video.v1.Barrage/Get", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Barrage/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func _Barrage_Create_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Barrage/Create",
+		FullMethod: "/video.pb.Barrage/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BarrageServer).Create(ctx, req.(*UpdateBarrageRequest))
@@ -141,7 +141,7 @@ func _Barrage_Update_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Barrage/Update",
+		FullMethod: "/video.pb.Barrage/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BarrageServer).Update(ctx, req.(*UpdateBarrageRequest))
@@ -159,7 +159,7 @@ func _Barrage_Delete_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Barrage/Delete",
+		FullMethod: "/video.pb.Barrage/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BarrageServer).Delete(ctx, req.(*UpdateBarrageRequest))
@@ -177,7 +177,7 @@ func _Barrage_Get_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Barrage/Get",
+		FullMethod: "/video.pb.Barrage/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BarrageServer).Get(ctx, req.(*GetBarragesRequest))
@@ -189,7 +189,7 @@ func _Barrage_Get_Handler(srv interface{}, ctx context.Context, dec func(interfa
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Barrage_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "video.v1.Barrage",
+	ServiceName: "video.pb.Barrage",
 	HandlerType: (*BarrageServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

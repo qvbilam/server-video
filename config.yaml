@@ -3,8 +3,12 @@ db:
   host: "127.0.0.1"
   port: 3306
   user: "root"
-  password: "root"
+  password: ""
   database: "qvbilam_video"
 es:
   host: "127.0.0.1"
   port: 9200
+user-server:
+  host: "127.0.0.1"
+  port: 9801
+  name: "grpc-user-server"

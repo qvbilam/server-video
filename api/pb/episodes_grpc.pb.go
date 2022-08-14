@@ -40,7 +40,7 @@ func NewEpisodesClient(cc grpc.ClientConnInterface) EpisodesClient {
 
 func (c *episodesClient) Create(ctx context.Context, in *UpdateEpisodesRequest, opts ...grpc.CallOption) (*EpisodesResponse, error) {
 	out := new(EpisodesResponse)
-	err := c.cc.Invoke(ctx, "/video.v1.Episodes/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Episodes/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (c *episodesClient) Create(ctx context.Context, in *UpdateEpisodesRequest, 
 
 func (c *episodesClient) Update(ctx context.Context, in *UpdateEpisodesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/video.v1.Episodes/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Episodes/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *episodesClient) Update(ctx context.Context, in *UpdateEpisodesRequest, 
 
 func (c *episodesClient) Delete(ctx context.Context, in *UpdateEpisodesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/video.v1.Episodes/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Episodes/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *episodesClient) Delete(ctx context.Context, in *UpdateEpisodesRequest, 
 
 func (c *episodesClient) GetDetail(ctx context.Context, in *GetEpisodesRequest, opts ...grpc.CallOption) (*EpisodesResponse, error) {
 	out := new(EpisodesResponse)
-	err := c.cc.Invoke(ctx, "/video.v1.Episodes/GetDetail", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Episodes/GetDetail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (c *episodesClient) GetDetail(ctx context.Context, in *GetEpisodesRequest, 
 
 func (c *episodesClient) Get(ctx context.Context, in *GetEpisodesRequest, opts ...grpc.CallOption) (*EpisodesListResponse, error) {
 	out := new(EpisodesListResponse)
-	err := c.cc.Invoke(ctx, "/video.v1.Episodes/Get", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Episodes/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func _Episodes_Create_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Episodes/Create",
+		FullMethod: "/video.pb.Episodes/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(EpisodesServer).Create(ctx, req.(*UpdateEpisodesRequest))
@@ -155,7 +155,7 @@ func _Episodes_Update_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Episodes/Update",
+		FullMethod: "/video.pb.Episodes/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(EpisodesServer).Update(ctx, req.(*UpdateEpisodesRequest))
@@ -173,7 +173,7 @@ func _Episodes_Delete_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Episodes/Delete",
+		FullMethod: "/video.pb.Episodes/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(EpisodesServer).Delete(ctx, req.(*UpdateEpisodesRequest))
@@ -191,7 +191,7 @@ func _Episodes_GetDetail_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Episodes/GetDetail",
+		FullMethod: "/video.pb.Episodes/GetDetail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(EpisodesServer).GetDetail(ctx, req.(*GetEpisodesRequest))
@@ -209,7 +209,7 @@ func _Episodes_Get_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Episodes/Get",
+		FullMethod: "/video.pb.Episodes/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(EpisodesServer).Get(ctx, req.(*GetEpisodesRequest))
@@ -221,7 +221,7 @@ func _Episodes_Get_Handler(srv interface{}, ctx context.Context, dec func(interf
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Episodes_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "video.v1.Episodes",
+	ServiceName: "video.pb.Episodes",
 	HandlerType: (*EpisodesServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

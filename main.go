@@ -7,7 +7,7 @@ import (
 	"net"
 	"os"
 	"video/api"
-	proto "video/api/v1"
+	proto "video/api/pb"
 	"video/global"
 	"video/initialize"
 	"video/utils"
@@ -19,6 +19,7 @@ func main() {
 	initialize.InitConfig()
 	initialize.InitDatabase()
 	initialize.InitElasticSearch()
+	initialize.InitServer()
 
 	// 注册服务
 	server := grpc.NewServer()

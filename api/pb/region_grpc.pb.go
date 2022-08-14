@@ -39,7 +39,7 @@ func NewRegionClient(cc grpc.ClientConnInterface) RegionClient {
 
 func (c *regionClient) Create(ctx context.Context, in *UpdateRegionRequest, opts ...grpc.CallOption) (*RegionResponse, error) {
 	out := new(RegionResponse)
-	err := c.cc.Invoke(ctx, "/video.v1.Region/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Region/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (c *regionClient) Create(ctx context.Context, in *UpdateRegionRequest, opts
 
 func (c *regionClient) Update(ctx context.Context, in *UpdateRegionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/video.v1.Region/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Region/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *regionClient) Update(ctx context.Context, in *UpdateRegionRequest, opts
 
 func (c *regionClient) Delete(ctx context.Context, in *DeleteRegionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/video.v1.Region/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Region/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *regionClient) Delete(ctx context.Context, in *DeleteRegionRequest, opts
 
 func (c *regionClient) Get(ctx context.Context, in *GetRegionRequest, opts ...grpc.CallOption) (*GetRegionResponse, error) {
 	out := new(GetRegionResponse)
-	err := c.cc.Invoke(ctx, "/video.v1.Region/Get", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/video.pb.Region/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func _Region_Create_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Region/Create",
+		FullMethod: "/video.pb.Region/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegionServer).Create(ctx, req.(*UpdateRegionRequest))
@@ -141,7 +141,7 @@ func _Region_Update_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Region/Update",
+		FullMethod: "/video.pb.Region/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegionServer).Update(ctx, req.(*UpdateRegionRequest))
@@ -159,7 +159,7 @@ func _Region_Delete_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Region/Delete",
+		FullMethod: "/video.pb.Region/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegionServer).Delete(ctx, req.(*DeleteRegionRequest))
@@ -177,7 +177,7 @@ func _Region_Get_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/video.v1.Region/Get",
+		FullMethod: "/video.pb.Region/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegionServer).Get(ctx, req.(*GetRegionRequest))
@@ -189,7 +189,7 @@ func _Region_Get_Handler(srv interface{}, ctx context.Context, dec func(interfac
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Region_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "video.v1.Region",
+	ServiceName: "video.pb.Region",
 	HandlerType: (*RegionServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

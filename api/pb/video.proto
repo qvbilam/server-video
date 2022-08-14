@@ -1,6 +1,6 @@
 syntax = "proto3";
-package video.v1;
-option go_package="video/api/v1;proto";
+package video.pb;
+option go_package="video/api/pb;proto";
 import "google/protobuf/empty.proto";
 import "category.proto";
 import "region.proto";
@@ -8,7 +8,7 @@ import "page.proto";
 
 message VideoResponse {
   int64 id = 1;
-  int64 user_id = 2;
+  VideoUserResponse user = 2;
   RegionResponse region = 3;
   CategoryResponse category = 4;
   string name = 5;
@@ -86,6 +86,13 @@ message GetVideoRequest{
 message VideosResponse{
   int64 total = 1;
   repeated VideoResponse videos = 2;
+}
+
+message VideoUserResponse{
+  int64 id = 1;
+  string nickname = 3;
+  string avatar = 4;
+  string gender = 5;
 }
 
 service Video{

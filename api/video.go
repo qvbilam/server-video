@@ -1,12 +1,15 @@
 package api
 
 import (
+	"go.uber.org/zap"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	proto "video/api/v1"
+	proto "video/api/pb"
+	userProto "video/api/user/pb"
 	"video/business"
+	"video/global"
 	"video/model"
 )
 
@@ -83,11 +86,35 @@ func (s *VideoServer) Get(ctx context.Context, request *proto.SearchVideoRequest
 		return nil, err
 	}
 
-	// 结果转换
 	response := proto.VideosResponse{Total: res.Total}
+	// 结果转换
+	var userIds []int64
+	userMaps := make(map[int64]*userProto.UserResponse)
 	for _, video := range res.Videos {
+		userIds = append(userIds, video.UserID)
 		videoResponse := modelToResponse(video)
 		response.Videos = append(response.Videos, &videoResponse)
+	}
+
+	// 获取用户信息
+	users, err := global.UserServerClient.ListByIds(context.Background(), &userProto.ListByIdsRequest{Ids: userIds})
+	if err != nil {
+		zap.S().Errorf("获取用户信息失败: %s", err)
+	}
+	for _, user := range users.Users {
+		userMaps[user.Id] = user
+	}
+
+	// 视频追加用户信息
+	for _, video := range response.Videos {
+		if userMaps[video.User.Id] != nil {
+			video.User = &proto.VideoUserResponse{
+				Id:       userMaps[video.User.Id].Id,
+				Nickname: userMaps[video.User.Id].Nickname,
+				Avatar:   userMaps[video.User.Id].Avatar,
+				Gender:   userMaps[video.User.Id].Gender,
+			}
+		}
 	}
 
 	return &response, nil
@@ -129,10 +156,16 @@ func searchRequestToCondition(request *proto.SearchVideoRequest) business.Video 
 
 func modelToResponse(video model.Video) proto.VideoResponse {
 	return proto.VideoResponse{
-		Id:             video.ID,
-		UserId:         video.UserID,
-		Region:         nil,
-		Category:       nil,
+		Id: video.ID,
+		User: &proto.VideoUserResponse{
+			Id: video.UserID,
+		},
+		Region: &proto.RegionResponse{
+			Id: video.RegionId,
+		},
+		Category: &proto.CategoryResponse{
+			Id: video.CategoryId,
+		},
 		Name:           video.Name,
 		Introduction:   video.Introduction,
 		Icon:           video.Icon,
