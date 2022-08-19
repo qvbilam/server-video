@@ -2,10 +2,9 @@ package api
 
 import (
 	"context"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	proto "video/api/pb"
+	"video/business"
 )
 
 type RegionServer struct {
@@ -13,14 +12,57 @@ type RegionServer struct {
 }
 
 func (s *RegionServer) Create(ctx context.Context, request *proto.UpdateRegionRequest) (*proto.RegionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+	b := business.Region{
+		Name:      request.Name,
+		Icon:      request.Icon,
+		IsVisible: &request.IsVisible,
+	}
+	id, err := b.Create()
+	if err != nil {
+		return nil, err
+	}
+
+	return &proto.RegionResponse{Id: id}, nil
 }
+
 func (s *RegionServer) Update(ctx context.Context, request *proto.UpdateRegionRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+	b := business.Region{
+		Id:        request.Id,
+		Name:      request.Name,
+		Icon:      request.Icon,
+		IsVisible: &request.IsVisible,
+	}
+	if _, err := b.Update(); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
+
 func (s *RegionServer) Delete(ctx context.Context, request *proto.DeleteRegionRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+	b := business.Region{Id: request.Id}
+	if _, err := b.Delete(); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
+
 func (s *RegionServer) Get(ctx context.Context, request *proto.GetRegionRequest) (*proto.GetRegionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+	b := business.Region{
+		IsVisible: &request.IsVisible,
+	}
+	regions, err := b.List()
+	if err != nil {
+		return nil, err
+	}
+
+	response := proto.GetRegionResponse{}
+	for _, region := range *regions {
+		response.Region = append(response.Region, &proto.RegionResponse{
+			Id:   region.ID,
+			Name: region.Name,
+			Icon: region.Icon,
+		})
+	}
+
+	return &response, nil
 }

@@ -7,14 +7,18 @@ message CategoryResponse {
   int64 id = 1;
   string name = 2;
   string icon = 3;
+  int64 level = 4;
+  int64 parentId = 5;
 }
 
 message GetCategoryRequest{
   bool isVisible = 1;
+  int64 level = 2;
+  int64 parentId = 3;
 }
 
 message GetCategoryResponse{
-  repeated CategoryResponse region = 1;
+  repeated CategoryResponse category = 1;
 }
 
 message UpdateCategoryRequest{
@@ -22,6 +26,8 @@ message UpdateCategoryRequest{
   string name = 2;
   string icon = 3;
   bool isVisible = 4;
+  int64 parentId = 5;
+  int64 level = 6;
 }
 
 service Category{
