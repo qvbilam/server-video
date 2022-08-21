@@ -100,9 +100,13 @@ type Episodes struct {
 type Barrage struct {
 	IDModel
 	UserModel
-	VeId    int64  `gorm:"type:int not null default 0;comment:剧集id;index:idx_ve_second"`
-	Second  int64  `gorm:"not null default 0;comment:视频当前时间;index:idx_ve_second"`
-	Content string `gorm:"type:varchar(255); not null default '';comment:内容"`
+	VideoId   int64  `gorm:"index:idx_video_second;type:int not null default 0;comment:剧集id"`
+	Second    int64  `gorm:"index:idx_video_second;type:int not null default 0;comment:视频当前时间"`
+	Content   string `gorm:"type:varchar(255); not null default '';comment:内容"`
+	Color     string `gorm:"type:varchar(255); not null default '';comment:颜色"`
+	Size      int64  `gorm:"type:int; not null default 0;comment:字体大小: 0小，1中等，2大"`
+	Position  int64  `gorm:"type:int; not null default 0;comment:字体大小: 0滚动，1顶部，2底部"`
+	LikeCount int64  `gorm:"type:int; not null default 0;comment:点赞数量"`
 	Visible
 	DateModel
 }

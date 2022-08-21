@@ -5,6 +5,7 @@ import "google/protobuf/empty.proto";
 import "category.proto";
 import "region.proto";
 import "page.proto";
+import "episodes.proto";
 
 message VideoResponse {
   int64 id = 1;
@@ -34,21 +35,22 @@ message UpdateVideoRequest{
   int64 userId = 2;
   int64 regionId = 3;
   int64 categoryId = 4;
-  string name = 5;
-  string introduction = 6;
-  string icon = 7;
-  string horizontalIcon = 8;
-  float score = 9;
-  int64 count = 10;
-  int64 totalCount = 11;
-  int64 favoriteCount = 12;
-  int64 likeCount = 13;
-  int64 playCount = 14;
-  int64 barrageCount = 15;
-  bool isRecommend = 16;
-  bool isHot = 17;
-  bool isEnd = 18;
-  bool isVisible = 19;
+  UpdateEpisodesRequest episodes = 5;
+  string name = 6;
+  string introduction = 7;
+  string icon = 8;
+  string horizontalIcon = 9;
+  float score = 10;
+  int64 count = 11;
+  int64 totalCount = 12;
+  int64 favoriteCount = 13;
+  int64 likeCount = 14;
+  int64 playCount = 15;
+  int64 barrageCount = 16;
+  bool isRecommend = 17;
+  bool isHot = 18;
+  bool isEnd = 19;
+  bool isVisible = 20;
 }
 
 message SearchVideoRequest{
