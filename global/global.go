@@ -3,7 +3,7 @@ package global
 import (
 	"github.com/olivere/elastic/v7"
 	"gorm.io/gorm"
-	userProto "video/api/user/pb"
+	userProto "video/api/qvbilam/user/v1"
 	"video/config"
 )
 

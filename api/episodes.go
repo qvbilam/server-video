@@ -5,7 +5,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	proto "video/api/pb"
+	proto "video/api/qvbilam/video/v1"
 )
 
 type EpisodesServer struct {

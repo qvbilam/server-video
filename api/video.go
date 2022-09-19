@@ -6,8 +6,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	proto "video/api/pb"
-	userProto "video/api/user/pb"
+	userProto "video/api/qvbilam/user/v1"
+	proto "video/api/qvbilam/video/v1"
 	"video/business"
 	"video/global"
 	"video/model"
@@ -97,7 +97,7 @@ func (s *VideoServer) Get(ctx context.Context, request *proto.SearchVideoRequest
 	}
 
 	// 获取用户信息
-	users, err := global.UserServerClient.ListByIds(context.Background(), &userProto.ListByIdsRequest{Ids: userIds})
+	users, err := global.UserServerClient.List(context.Background(), &userProto.SearchRequest{Id: userIds})
 	if err != nil {
 		zap.S().Errorf("获取用户信息失败: %s", err)
 	}

@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"time"
-	userProto "video/api/user/pb"
+	userProto "video/api/qvbilam/user/v1"
 	"video/global"
 )
 

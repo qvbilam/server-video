@@ -7,7 +7,7 @@ import (
 	"net"
 	"os"
 	"video/api"
-	proto "video/api/pb"
+	proto "video/api/qvbilam/video/v1"
 	"video/global"
 	"video/initialize"
 	"video/utils"

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"testing"
-	proto "video/api/pb"
+	proto "video/api/qvbilam/video/v1"
 )
 
 var Client proto.VideoClient

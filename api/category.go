@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"google.golang.org/protobuf/types/known/emptypb"
-	proto "video/api/pb"
+	proto "video/api/qvbilam/video/v1"
 	"video/business"
 )
 
