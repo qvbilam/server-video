@@ -24,7 +24,7 @@ func main() {
 	// 注册服务
 	server := grpc.NewServer()
 	proto.RegisterCategoryServer(server, &api.CategoryServer{})
-	proto.RegisterEpisodesServer(server, &api.EpisodesServer{})
+	proto.RegisterDramaServer(server, &api.DramaServer{})
 	proto.RegisterRegionServer(server, &api.RegionServer{})
 	proto.RegisterVideoServer(server, &api.VideoServer{})
 

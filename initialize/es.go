@@ -25,6 +25,7 @@ func InitElasticSearch() {
 
 	// 创建 video mapping
 	createVideoIndex()
+	createDramaIndex()
 }
 
 func createVideoIndex() {
@@ -39,6 +40,26 @@ func createVideoIndex() {
 			Do(context.Background())
 		if err != nil {
 			zap.S().Panicf("创建视频索引异常: %s", err)
+		}
+
+		if !createIndex.Acknowledged {
+			// Not acknowledged
+		}
+	}
+}
+
+func createDramaIndex() {
+	exists, err := global.ES.IndexExists(model.DramaES{}.GetIndexName()).Do(context.Background())
+	if err != nil {
+		zap.S().Panicf("视频索引异常: %s", err)
+	}
+	if !exists { // 创建索引
+		createIndex, err := global.ES.
+			CreateIndex(model.DramaES{}.GetIndexName()).
+			BodyString(model.DramaES{}.GetMapping()).
+			Do(context.Background())
+		if err != nil {
+			zap.S().Panicf("创建剧集索引异常: %s", err)
 		}
 
 		if !createIndex.Acknowledged {

@@ -7,108 +7,48 @@ import (
 	"video/global"
 )
 
-// Region 区域
-type Region struct {
-	IDModel
-	Name string `gorm:"type:varchar(255); not null default '';comment:名称"`
-	Icon string `gorm:"type:varchar(255); not null default '';comment:横版图标"`
-	Visible
-	DateModel
-	DeletedModel
-}
+type VideoES struct {
+	ID            int64 `json:"id"`
+	UserID        int64 `json:"user_id"`
+	CategoryID    int64 `json:"category_id"`
+	FavoriteCount int64 `json:"favorite_count"`
+	LikeCount     int64 `json:"like_count"`
+	PlayCount     int64 `json:"play_count"`
+	BarrageCount  int64 `json:"barrage_count"`
 
-// Category 分类
-type Category struct {
-	IDModel
-	ParentId int64  `gorm:"type:int not null default 0;comment:父级id;index:idx_parent_id"`
-	Name     string `gorm:"type:varchar(255); not null default '';comment:名称"`
-	Icon     string `gorm:"type:varchar(255); not null default '';comment:横版图标"`
-	Level    int64  `gorm:"type:int(11);not null;default:0;comment:分类等级"`
-	Visible
-	DateModel
-	DeletedModel
-}
+	IsRecommend bool `json:"is_recommend"`
+	IsNew       bool `json:"is_new"`
+	IsHot       bool `json:"is_hot"`
+	IsVisible   bool `json:"isVisible"`
 
-// Style 风格
-type Style struct {
-	IDModel
-	CategoryId int64  `gorm:"type:int not null default 0;comment:分类id;index:idx_category_id"`
-	Name       string `gorm:"type:varchar(255); not null default '';comment:名称"`
-	Icon       string `gorm:"type:varchar(255); not null default '';comment:横版图标"`
-	Visible
-	DateModel
-	DeletedModel
-}
+	Score float64 `json:"score"`
 
-// StyleVideo 风格视频关联
-type StyleVideo struct {
-	IDModel
-	StyleId int64 `gorm:"type:int not null default 0;comment:风格id;index:idx_style_video"`
-	VideoId int64 `gorm:"type:int not null default 0;comment:视频id;index:idx_style_video"`
-	DateModel
+	AliCloudId string `json:"ali_cloud_id"`
+	Name       string `json:"name"`
+	Introduce  string `json:"introduce"`
 }
 
 // Video 视频
 type Video struct {
 	IDModel
 	UserModel
-	RegionId       int64   `gorm:"type:int not null default 0;comment:区域id;index:idx_region_id"`
+	AliCloudId     string  `gorm:"type:varchar(255); not null default '';comment:阿里视频id"`
 	CategoryId     int64   `gorm:"type:int not null default 0;comment:分类id;index:idx_category_id"`
 	Name           string  `gorm:"type:varchar(255); not null default '';comment:名称"`
 	Introduction   string  `gorm:"type:varchar(2048); not null default '';comment:简介"`
 	Icon           string  `gorm:"type:varchar(255); not null default '';comment:横版图标"`
 	HorizontalIcon string  `gorm:"type:varchar(255); not null default '';comment:纵版图标"`
 	Score          float64 `gorm:"type:decimal(1,1);not null default 0;comment:评分"`
-	Count          int64   `gorm:"not null default 0;comment:当前集数"`
-	TotalCount     int64   `gorm:"not null default 0;comment:总集数"`
-	FavoriteCount  int64   `gorm:"not null default 0;comment:收藏数量"`
-	LikeCount      int64   `gorm:"not null default 0;comment:点赞数量"`
-	PlayCount      int64   `gorm:"not null default 0;comment:播放数量"`
-	BarrageCount   int64   `gorm:"not null default 0;comment:弹幕数量"`
-	IsRecommend    bool    `gorm:"not null default 0;comment:是否推荐"`
-	IsNew          bool    `gorm:"not null default 0;comment:是否最新"`
-	IsHot          bool    `gorm:"not null default 0;comment:是否热播"`
-	IsEnd          bool    `gorm:"not null default 0;comment:是否完结"`
+	FavoriteCount  int64   `gorm:"type:int; not null default 0;comment:收藏数量"`
+	LikeCount      int64   `gorm:"type:int; not null default 0;comment:点赞数量"`
+	PlayCount      int64   `gorm:"type:int; not null default 0;comment:播放数量"`
+	BarrageCount   int64   `gorm:"type:int; not null default 0;comment:弹幕数量"`
+	IsRecommend    bool    `gorm:"type:tinyint(1); not null default 0;comment:是否推荐"`
+	IsNew          bool    `gorm:"type:tinyint(1); not null default 0;comment:是否最新"`
+	IsHot          bool    `gorm:"type:tinyint(1); not null default 0;comment:是否热播"`
 	Visible
 	DateModel
 	DeletedModel
-}
-
-// Episodes 视频剧集
-type Episodes struct {
-	IDModel
-	VideoId       int64   `gorm:"type:int not null default 0;comment:区域id;index:idx_video_id"`
-	AliCloudId    string  `gorm:"type:varchar(255); not null default '';comment:阿里视频id"`
-	Name          string  `gorm:"type:varchar(255); not null default '';comment:名称"`
-	Introduction  string  `gorm:"type:varchar(2048); not null default '';comment:简介"`
-	Icon          string  `gorm:"type:varchar(255); not null default '';comment:横版图标"`
-	Score         float64 `gorm:"type:decimal(1,1);not null default 0;comment:评分"`
-	Url           string  `gorm:"type:varchar(255); not null default '';comment:播放地址"`
-	Number        int64   `gorm:"not null default 0;comment:集数编号"`
-	FavoriteCount int64   `gorm:"not null default 0;comment:收藏数量"`
-	LikeCount     int64   `gorm:"not null default 0;comment:点赞数量"`
-	PlayCount     int64   `gorm:"not null default 0;comment:播放数量"`
-	BarrageCount  int64   `gorm:"not null default 0;comment:弹幕数量"`
-	IsNew         bool    `gorm:"not null default 0;comment:是否最新"`
-	IsHot         bool    `gorm:"not null default 0;comment:是否热播"`
-	Visible
-	DateModel
-	DeletedModel
-}
-
-// Barrage 视频弹幕
-type Barrage struct {
-	IDModel
-	UserModel
-	VideoId   int64  `gorm:"index:idx_video_second;type:int not null default 0;comment:剧集id"`
-	Second    int64  `gorm:"index:idx_video_second;type:int not null default 0;comment:视频当前时间"`
-	Content   string `gorm:"type:varchar(255); not null default '';comment:内容"`
-	Color     string `gorm:"type:varchar(255); not null default '';comment:颜色"`
-	Size      int64  `gorm:"type:int; not null default 0;comment:字体大小: 0小，1中等，2大"`
-	Position  int64  `gorm:"type:int; not null default 0;comment:字体大小: 0滚动，1顶部，2底部"`
-	LikeCount int64  `gorm:"type:int; not null default 0;comment:点赞数量"`
-	Visible
-	DateModel
 }
 
 func (video *Video) AfterCreate(tx *gorm.DB) error {
@@ -151,10 +91,7 @@ func videoModelToEsIndex(video *Video) *VideoES {
 	return &VideoES{
 		ID:            video.ID,
 		UserID:        video.UserID,
-		RegionID:      video.RegionId,
 		CategoryID:    video.CategoryId,
-		Count:         video.Count,
-		TotalCount:    video.TotalCount,
 		FavoriteCount: video.FavoriteCount,
 		LikeCount:     video.LikeCount,
 		PlayCount:     video.PlayCount,
@@ -162,10 +99,68 @@ func videoModelToEsIndex(video *Video) *VideoES {
 		IsRecommend:   video.IsRecommend,
 		IsNew:         video.IsNew,
 		IsHot:         video.IsHot,
-		IsEnd:         video.IsEnd,
 		IsVisible:     video.IsVisible,
 		Score:         video.Score,
 		Name:          video.Name,
 		Introduce:     video.Introduction,
 	}
+}
+
+func (VideoES) GetIndexName() string {
+	return "video"
+}
+
+func (VideoES) GetMapping() string {
+	videoMapping := `{
+    "mappings":{
+        "properties":{
+            "user_id":{
+                "type":"integer"
+            },
+            "category_id":{
+                "type":"integer"
+            },
+            "favorite_count":{
+                "type":"integer"
+            },
+            "like_count":{
+                "type":"integer"
+            },
+            "play_count":{
+                "type":"integer"
+            },
+            "barrage_count":{
+                "type":"integer"
+            },
+            "is_recommend":{
+                "type":"boolean"
+            },
+            "is_new":{
+                "type":"boolean"
+            },
+            "is_hot":{
+                "type":"boolean"
+            },
+            "is_visible":{
+                "type":"boolean"
+            },
+            "score":{
+                "type":"float"
+            },
+            "ali_cloud_id":{
+                "type":"text"
+            },
+            "name":{
+                "type":"text",
+                "analyzer":"ik_max_word"
+            },
+            "introduce":{
+                "type":"text",
+                "analyzer":"ik_max_word"
+            }
+        }
+    }
+}`
+
+	return videoMapping
 }

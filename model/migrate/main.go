@@ -59,14 +59,15 @@ func Migrate(db *gorm.DB) {
 		&model.Style{},
 		&model.StyleVideo{},
 		&model.Video{},
-		&model.Episodes{},
-		&model.Barrage{},
+		&model.Drama{},
+		&model.DramaVideo{},
 	)
 }
 
 func Insert(db *gorm.DB) {
 	CreateCategory(db)
-	CreateEpisodes(db)
 	CreateRegions(db)
-	CreateVideo(db)
+	// todo 数据结构变动, 不适合插入
+	//CreateEpisodes(db)
+	//CreateVideo(db)
 }

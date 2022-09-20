@@ -17,8 +17,8 @@ type VideoListResponse struct {
 
 type Video struct {
 	Id             int64
+	AliCloudId     string
 	UserId         int64
-	RegionId       int64
 	CategoryId     int64
 	Name           string
 	Introduction   string
@@ -26,8 +26,10 @@ type Video struct {
 	HorizontalIcon string
 	TotalCount     int64
 	Keyword        string
+	// 其他表需要字段
+	DramaId int64
+	Episode *int64
 	// 以下字段只允许通过剧集修改
-	Count         int64
 	Score         float64
 	FavoriteCount int64
 	LikeCount     int64
@@ -36,7 +38,6 @@ type Video struct {
 	IsRecommend   bool
 	IsNew         bool
 	IsHot         bool
-	IsEnd         bool
 	IsVisible     bool
 	// 多层级查找
 	CategoryIds []interface{}
@@ -65,13 +66,11 @@ func (s *Video) Create() (int64, error) {
 		UserModel: model.UserModel{
 			UserID: s.UserId,
 		},
-		RegionId:       s.RegionId,
 		CategoryId:     s.CategoryId,
 		Name:           s.Name,
 		Introduction:   s.Introduction,
 		Icon:           s.Icon,
 		HorizontalIcon: s.HorizontalIcon,
-		TotalCount:     s.TotalCount,
 		Visible:        model.Visible{},
 	}
 
@@ -86,6 +85,18 @@ func (s *Video) Create() (int64, error) {
 		return 0, status.Errorf(codes.Internal, "创建视频失败: %s", cvRes.Error)
 	}
 
+	if s.DramaId != 0 {
+		dvBis := DramaVideoBusiness{
+			DramaId: s.DramaId,
+			VideoId: entity.ID,
+			Episode: s.Episode,
+		}
+		if _, err := dvBis.UpdateEpisode(tx); err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+	}
+
 	tx.Commit()
 	return entity.ID, nil
 }
@@ -97,14 +108,12 @@ func (s *Video) Update() (int64, error) {
 		tx.Rollback()
 		return 0, status.Errorf(codes.NotFound, "视频不存在")
 	}
-	videoEntity.RegionId = s.RegionId
 	videoEntity.CategoryId = s.CategoryId
 	videoEntity.Name = s.Name
 	videoEntity.Introduction = s.Introduction
 	videoEntity.Icon = s.Icon
 	videoEntity.HorizontalIcon = s.HorizontalIcon
 	videoEntity.Score = s.Score
-	videoEntity.TotalCount = s.TotalCount
 
 	res := global.DB.Save(&videoEntity)
 	if res.Error != nil {
@@ -226,17 +235,12 @@ func (s *Video) GetVideosESQuery() *elastic.BoolQuery {
 	if s.UserId > 0 { // 搜索用户
 		q = q.Filter(elastic.NewTermQuery("user_id", s.UserId))
 	}
-	if s.RegionId > 0 { // 搜索
-		q = q.Filter(elastic.NewTermQuery("region_id", s.RegionId))
-	}
+
 	if s.IsHot { // 搜索热度
 		q = q.Filter(elastic.NewTermQuery("is_hot", s.IsHot))
 	}
 	if s.IsNew { // 搜索新品
 		q = q.Filter(elastic.NewTermQuery("is_new", s.IsNew))
-	}
-	if s.IsEnd { // 搜索是否完结
-		q = q.Filter(elastic.NewTermQuery("is_end", s.IsNew))
 	}
 	if s.IsVisible { // 搜索展示状态
 		q = q.Filter(elastic.NewTermQuery("is_visible", s.IsNew))

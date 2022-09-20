@@ -16,13 +16,11 @@ function userProto {
   protoc -I="$PROTO_PATH" --go_out "$OUT_PATH" --go_opt paths=source_relative --go-grpc_out "$OUT_PATH" --go-grpc_opt=paths=source_relative "$PROTO_FILE"
 }
 
-proto barrage v1
 proto category v1
-proto episodes v1
+proto drama v1
 proto page v1
 proto region v1
 proto video v1
 
 userProto user v1
-#userProto page
 

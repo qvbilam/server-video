@@ -24,21 +24,16 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 		//return nil, err
 	}
 
-	// todo 验证区域 区分用户角色
-	regionBusiness := business.Region{Id: request.RegionId}
-	if _, err := regionBusiness.Exists(); err != nil {
-		//return nil, err
-	}
-
 	videoBusiness := business.Video{
+		DramaId:        request.DramaId,
+		Episode:        request.Episode,
+		AliCloudId:     request.AliCloudId,
 		UserId:         request.UserId,
-		RegionId:       request.RegionId,
 		CategoryId:     request.CategoryId,
 		Name:           request.Name,
 		Introduction:   request.Introduction,
 		Icon:           request.Icon,
 		HorizontalIcon: request.HorizontalIcon,
-		TotalCount:     request.TotalCount,
 	}
 	videoId, err := videoBusiness.Create()
 	if err != nil {
@@ -52,13 +47,12 @@ func (s *VideoServer) Update(ctx context.Context, request *proto.UpdateVideoRequ
 	videoBusiness := business.Video{
 		Id:             request.Id,
 		UserId:         request.UserId,
-		RegionId:       request.RegionId,
+		AliCloudId:     request.AliCloudId,
 		CategoryId:     request.CategoryId,
 		Name:           request.Name,
 		Introduction:   request.Introduction,
 		Icon:           request.Icon,
 		HorizontalIcon: request.HorizontalIcon,
-		TotalCount:     request.TotalCount,
 		Score:          float64(request.Score),
 	}
 	_, err := videoBusiness.Update()
@@ -133,13 +127,11 @@ func (s *VideoServer) GetDetail(ctx context.Context, request *proto.GetVideoRequ
 func searchRequestToCondition(request *proto.SearchVideoRequest) business.Video {
 	return business.Video{
 		UserId:           request.UserId,
-		RegionId:         request.RegionId,
 		CategoryId:       request.CategoryId,
 		Keyword:          request.Keyword,
 		IsRecommend:      request.IsRecommend,
 		IsNew:            request.IsNew,
 		IsHot:            request.IsHot,
-		IsEnd:            request.IsEnd,
 		IsVisible:        request.IsVisible,
 		FavoriteCountMin: request.FavoriteCountMin,
 		FavoriteCountMax: request.FavoriteCountMax,
@@ -156,12 +148,10 @@ func searchRequestToCondition(request *proto.SearchVideoRequest) business.Video 
 
 func modelToResponse(video model.Video) proto.VideoResponse {
 	return proto.VideoResponse{
-		Id: video.ID,
+		Id:         video.ID,
+		AliCloudId: video.AliCloudId,
 		User: &proto.VideoUserResponse{
 			Id: video.UserID,
-		},
-		Region: &proto.RegionResponse{
-			Id: video.RegionId,
 		},
 		Category: &proto.CategoryResponse{
 			Id: video.CategoryId,
@@ -171,16 +161,12 @@ func modelToResponse(video model.Video) proto.VideoResponse {
 		Icon:           video.Icon,
 		HorizontalIcon: video.HorizontalIcon,
 		Score:          float32(video.Score),
-		Count:          video.Count,
-		TotalCount:     video.TotalCount,
 		FavoriteCount:  video.FavoriteCount,
 		LikeCount:      video.LikeCount,
 		PlayCount:      video.PlayCount,
 		BarrageCount:   video.BarrageCount,
 		IsRecommend:    video.IsRecommend,
 		IsHot:          video.IsHot,
-		IsEnd:          video.IsEnd,
-		CreatedAt:      video.CreatedAt.Unix(),
-		UpdatedAt:      video.UpdatedAt.Unix(),
+		CreatedTime:    video.CreatedAt.Unix(),
 	}
 }
