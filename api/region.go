@@ -12,7 +12,7 @@ type RegionServer struct {
 }
 
 func (s *RegionServer) Create(ctx context.Context, request *proto.UpdateRegionRequest) (*proto.RegionResponse, error) {
-	b := business.Region{
+	b := business.RegionBusiness{
 		Name:      request.Name,
 		Icon:      request.Icon,
 		IsVisible: &request.IsVisible,
@@ -26,7 +26,7 @@ func (s *RegionServer) Create(ctx context.Context, request *proto.UpdateRegionRe
 }
 
 func (s *RegionServer) Update(ctx context.Context, request *proto.UpdateRegionRequest) (*emptypb.Empty, error) {
-	b := business.Region{
+	b := business.RegionBusiness{
 		Id:        request.Id,
 		Name:      request.Name,
 		Icon:      request.Icon,
@@ -39,7 +39,7 @@ func (s *RegionServer) Update(ctx context.Context, request *proto.UpdateRegionRe
 }
 
 func (s *RegionServer) Delete(ctx context.Context, request *proto.DeleteRegionRequest) (*emptypb.Empty, error) {
-	b := business.Region{Id: request.Id}
+	b := business.RegionBusiness{Id: request.Id}
 	if _, err := b.Delete(); err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (s *RegionServer) Delete(ctx context.Context, request *proto.DeleteRegionRe
 }
 
 func (s *RegionServer) Get(ctx context.Context, request *proto.GetRegionRequest) (*proto.GetRegionResponse, error) {
-	b := business.Region{
+	b := business.RegionBusiness{
 		IsVisible: &request.IsVisible,
 	}
 	regions, err := b.List()

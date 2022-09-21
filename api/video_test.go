@@ -26,14 +26,11 @@ func TestVideoServer_Create(t *testing.T) {
 
 	response, err := Client.Create(context.Background(), &proto.UpdateVideoRequest{
 		UserId:         1,
-		RegionId:       1,
 		CategoryId:     1,
 		Name:           "测试视频",
 		Introduction:   "测试视频简介",
 		Icon:           "测试视频图标",
 		HorizontalIcon: "测试视频纵版图标",
-		Count:          1,
-		TotalCount:     1,
 	})
 
 	if err != nil {

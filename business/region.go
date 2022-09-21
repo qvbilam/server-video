@@ -7,19 +7,19 @@ import (
 	"video/model"
 )
 
-type Region struct {
+type RegionBusiness struct {
 	Id        int64
 	Name      string
 	Icon      string
 	IsVisible *bool
 }
 
-func (s *Region) Create() (int64, error) {
+func (b *RegionBusiness) Create() (int64, error) {
 	entity := model.Region{
-		Name: s.Name,
-		Icon: s.Icon,
+		Name: b.Name,
+		Icon: b.Icon,
 		Visible: model.Visible{
-			IsVisible: *s.IsVisible,
+			IsVisible: *b.IsVisible,
 		},
 	}
 
@@ -31,21 +31,21 @@ func (s *Region) Create() (int64, error) {
 
 }
 
-func (s *Region) Update() (int64, error) {
+func (b *RegionBusiness) Update() (int64, error) {
 	updates := model.Region{}
-	if s.Name != "" {
-		updates.Name = s.Name
+	if b.Name != "" {
+		updates.Name = b.Name
 	}
 
-	if s.Icon != "" {
-		updates.Icon = s.Icon
+	if b.Icon != "" {
+		updates.Icon = b.Icon
 	}
 
-	if s.IsVisible != nil {
-		updates.IsVisible = *s.IsVisible
+	if b.IsVisible != nil {
+		updates.IsVisible = *b.IsVisible
 	}
 
-	res := global.DB.Where(model.Region{IDModel: model.IDModel{ID: s.Id}}, updates)
+	res := global.DB.Where(model.Region{IDModel: model.IDModel{ID: b.Id}}, updates)
 	if res.RowsAffected == 0 {
 		return 0, status.Errorf(codes.Internal, "更新失败")
 	}
@@ -53,8 +53,8 @@ func (s *Region) Update() (int64, error) {
 	return res.RowsAffected, nil
 }
 
-func (s *Region) Delete() (int64, error) {
-	res := global.DB.Delete(model.Region{}, s.Id)
+func (b *RegionBusiness) Delete() (int64, error) {
+	res := global.DB.Delete(model.Region{}, b.Id)
 	if res.RowsAffected == 0 {
 		return 0, status.Errorf(codes.Internal, "删除失败")
 	}
@@ -62,30 +62,30 @@ func (s *Region) Delete() (int64, error) {
 	return res.RowsAffected, nil
 }
 
-func (s *Region) List() (*[]model.Region, error) {
+func (b *RegionBusiness) List() (*[]model.Region, error) {
 	var entity []model.Region
 	condition := model.Region{}
-	if s.IsVisible != nil {
-		condition.Visible.IsVisible = *s.IsVisible
+	if b.IsVisible != nil {
+		condition.Visible.IsVisible = *b.IsVisible
 	}
-	if s.Name != "" {
-		condition.Name = s.Name
+	if b.Name != "" {
+		condition.Name = b.Name
 	}
 	global.DB.Where(condition).Find(&entity)
 	return &entity, nil
 }
 
-func (s *Region) Exists() (bool, error) {
+func (b *RegionBusiness) Exists() (bool, error) {
 	entity := model.Region{}
 
 	condition := model.Region{}
 
-	if s.Id > 0 {
-		condition.IDModel.ID = s.Id
+	if b.Id > 0 {
+		condition.IDModel.ID = b.Id
 	}
 
-	if s.IsVisible != nil {
-		condition.Visible.IsVisible = *s.IsVisible
+	if b.IsVisible != nil {
+		condition.Visible.IsVisible = *b.IsVisible
 	}
 
 	res := global.DB.Where(condition).Select("id").First(&entity)

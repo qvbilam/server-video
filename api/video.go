@@ -24,9 +24,9 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 		//return nil, err
 	}
 
-	videoBusiness := business.Video{
+	videoBusiness := business.VideoBusiness{
 		DramaId:        request.DramaId,
-		Episode:        request.Episode,
+		Episode:        &request.Episode,
 		AliCloudId:     request.AliCloudId,
 		UserId:         request.UserId,
 		CategoryId:     request.CategoryId,
@@ -44,7 +44,9 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 }
 
 func (s *VideoServer) Update(ctx context.Context, request *proto.UpdateVideoRequest) (*emptypb.Empty, error) {
-	videoBusiness := business.Video{
+	videoBusiness := business.VideoBusiness{
+		DramaId:        request.DramaId,
+		Episode:        &request.Episode,
 		Id:             request.Id,
 		UserId:         request.UserId,
 		AliCloudId:     request.AliCloudId,
@@ -64,7 +66,7 @@ func (s *VideoServer) Update(ctx context.Context, request *proto.UpdateVideoRequ
 }
 
 func (s *VideoServer) Delete(ctx context.Context, request *proto.UpdateVideoRequest) (*emptypb.Empty, error) {
-	videoBusiness := business.Video{Id: request.Id}
+	videoBusiness := business.VideoBusiness{Id: request.Id}
 	_, err := videoBusiness.Delete()
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
@@ -115,7 +117,7 @@ func (s *VideoServer) Get(ctx context.Context, request *proto.SearchVideoRequest
 }
 
 func (s *VideoServer) GetDetail(ctx context.Context, request *proto.GetVideoRequest) (*proto.VideoResponse, error) {
-	videoBusiness := business.Video{}
+	videoBusiness := business.VideoBusiness{}
 	res, err := videoBusiness.Detail()
 	if err != nil {
 		return nil, err
@@ -124,8 +126,8 @@ func (s *VideoServer) GetDetail(ctx context.Context, request *proto.GetVideoRequ
 	return &response, nil
 }
 
-func searchRequestToCondition(request *proto.SearchVideoRequest) business.Video {
-	return business.Video{
+func searchRequestToCondition(request *proto.SearchVideoRequest) business.VideoBusiness {
+	return business.VideoBusiness{
 		UserId:           request.UserId,
 		CategoryId:       request.CategoryId,
 		Keyword:          request.Keyword,
