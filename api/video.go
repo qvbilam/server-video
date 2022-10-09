@@ -19,7 +19,7 @@ type VideoServer struct {
 
 func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequest) (*proto.VideoResponse, error) {
 	// todo 验证分类 区分用户角色
-	categoryBusiness := business.Category{Id: request.CategoryId}
+	categoryBusiness := business.CategoryBusiness{Id: request.CategoryId}
 	if _, err := categoryBusiness.Exists(); err != nil {
 		//return nil, err
 	}
