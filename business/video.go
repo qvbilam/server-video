@@ -17,7 +17,7 @@ type VideoListResponse struct {
 
 type VideoBusiness struct {
 	Id             int64
-	AliCloudId     string
+	FileId         int64
 	UserId         int64
 	CategoryId     int64
 	Name           string
@@ -189,7 +189,7 @@ func (b *VideoBusiness) List() (*VideoListResponse, error) {
 
 	// 多级分类
 	if b.CategoryId > 0 {
-		cs := Category{}
+		cs := CategoryBusiness{}
 		var err error
 		b.CategoryIds, err = cs.GetMultistageCategory()
 		if err != nil {

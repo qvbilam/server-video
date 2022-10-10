@@ -27,7 +27,7 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 	videoBusiness := business.VideoBusiness{
 		DramaId:        request.DramaId,
 		Episode:        &request.Episode,
-		AliCloudId:     request.AliCloudId,
+		FileId:         request.FileId,
 		UserId:         request.UserId,
 		CategoryId:     request.CategoryId,
 		Name:           request.Name,
@@ -49,7 +49,7 @@ func (s *VideoServer) Update(ctx context.Context, request *proto.UpdateVideoRequ
 		Episode:        &request.Episode,
 		Id:             request.Id,
 		UserId:         request.UserId,
-		AliCloudId:     request.AliCloudId,
+		FileId:         request.FileId,
 		CategoryId:     request.CategoryId,
 		Name:           request.Name,
 		Introduction:   request.Introduction,
@@ -150,8 +150,8 @@ func searchRequestToCondition(request *proto.SearchVideoRequest) business.VideoB
 
 func modelToResponse(video model.Video) proto.VideoResponse {
 	return proto.VideoResponse{
-		Id:         video.ID,
-		AliCloudId: video.AliCloudId,
+		Id:     video.ID,
+		FileId: video.FileId,
 		User: &proto.VideoUserResponse{
 			Id: video.UserID,
 		},

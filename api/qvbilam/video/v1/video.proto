@@ -1,13 +1,13 @@
 syntax = "proto3";
 package video.pb;
-option go_package="video/api/qvbilam/video/v1/videoPb;videoV1";
+option go_package="video/api/qvbilam/video/v1;videoV1";
 import "google/protobuf/empty.proto";
 import "category.proto";
-import "page.proto";
+import "api/qvbilam/page/v1/page.proto";
 
 message VideoResponse {
   int64 id = 1;
-  string aliCloudId = 2;
+  int64 fileId = 2;
   CategoryResponse category = 3;
   VideoUserResponse user = 4;
   string name = 5;
@@ -28,7 +28,7 @@ message VideoResponse {
 
 message UpdateVideoRequest{
   int64 id = 1;
-  string aliCloudId = 2;
+  int64 fileId = 2;
   int64 categoryId = 3;
   int64 userId = 4;
   string name = 5;
@@ -50,7 +50,7 @@ message UpdateVideoRequest{
 
 message SearchVideoRequest{
   repeated int64 id = 1;
-  string aliCloudId = 2;
+  int64 fileId = 2;
   int64 userId = 3;
   int64 regionId = 4;
   int64 categoryId = 5;
@@ -77,7 +77,7 @@ message SearchVideoRequest{
 message GetVideoRequest{
   int64 id = 1;
   SearchVideoRequest search = 2;
-  PageRequest page = 3;
+  pagePb.v1.PageRequest page = 3;
 }
 
 message VideosResponse{

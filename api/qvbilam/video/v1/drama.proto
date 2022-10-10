@@ -1,10 +1,10 @@
 syntax = "proto3";
 package video.pb;
-option go_package="video/api/qvbilam/video/v1/videoPb;videoV1";
+option go_package="video/api/qvbilam/video/v1;videoV1";
 import "google/protobuf/empty.proto";
-import "page.proto";
 import "category.proto";
 import "region.proto";
+import "api/qvbilam/page/v1/page.proto";
 
 message DramaResponse{
   int64 id = 1;
@@ -60,7 +60,7 @@ message SearchDramaRequest{
   int64 year = 5;
   int64 quarter = 6;
   bool isVisible = 7;
-  PageRequest page = 8;
+  pagePb.v1.PageRequest page = 8;
 }
 
 
