@@ -57,21 +57,22 @@ message SearchVideoRequest{
   string keyword = 6;
   string sort = 7;
   bool isRecommend = 8;
-  bool isNew = 9;
-  bool isHot = 10;
-  bool isVisible = 11;
-  int64 totalCountMin = 12;
-  int64 totalCountMax = 13;
-  int64 favoriteCountMin = 14;
-  int64 favoriteCountMax = 15;
-  int64 likeCountMin = 16;
-  int64 likeCountMax = 17;
-  int64 playCountMin = 18;
-  int64 playCountMax = 19;
-  int64 barrageCountMin = 20;
-  int64 barrageCountMax = 21;
-  int64 page = 22;
-  int64 perPage = 23;
+  bool isEnd = 9;
+  bool isNew = 10;
+  bool isHot = 11;
+  bool isVisible = 12;
+  int64 totalCountMin = 13;
+  int64 totalCountMax = 14;
+  int64 favoriteCountMin = 15;
+  int64 favoriteCountMax = 16;
+  int64 likeCountMin = 17;
+  int64 likeCountMax = 18;
+  int64 playCountMin = 19;
+  int64 playCountMax = 20;
+  int64 barrageCountMin = 21;
+  int64 barrageCountMax = 22;
+  int64 page = 23;
+  int64 perPage = 24;
 }
 
 message GetVideoRequest{
