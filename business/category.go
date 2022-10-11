@@ -8,7 +8,7 @@ import (
 	"video/model"
 )
 
-type Category struct {
+type CategoryBusiness struct {
 	Id        int64
 	Name      string
 	Icon      string
@@ -17,12 +17,12 @@ type Category struct {
 	IsVisible *bool
 }
 
-func (s *Category) Create() (int64, error) {
+func (b *CategoryBusiness) Create() (int64, error) {
 	entity := model.Category{
-		ParentId: *s.ParentId,
-		Name:     s.Name,
-		Icon:     s.Icon,
-		Level:    s.Level,
+		ParentId: *b.ParentId,
+		Name:     b.Name,
+		Icon:     b.Icon,
+		Level:    b.Level,
 	}
 	if res := global.DB.Save(&entity); res.RowsAffected == 0 {
 		return 0, status.Errorf(codes.Internal, "创建失败")
@@ -30,26 +30,26 @@ func (s *Category) Create() (int64, error) {
 	return entity.ID, nil
 }
 
-func (s *Category) Update() (int64, error) {
+func (b *CategoryBusiness) Update() (int64, error) {
 	updates := model.Category{}
-	if s.ParentId != nil {
-		updates.ParentId = *s.ParentId
+	if b.ParentId != nil {
+		updates.ParentId = *b.ParentId
 	}
-	if s.Level > 0 {
-		updates.Level = s.Level
+	if b.Level > 0 {
+		updates.Level = b.Level
 	}
-	if s.Icon != "" {
-		updates.Icon = s.Icon
+	if b.Icon != "" {
+		updates.Icon = b.Icon
 	}
-	if s.Name != "" {
-		updates.Name = s.Name
+	if b.Name != "" {
+		updates.Name = b.Name
 	}
-	if s.IsVisible != nil {
-		updates.Visible.IsVisible = *s.IsVisible
+	if b.IsVisible != nil {
+		updates.Visible.IsVisible = *b.IsVisible
 	}
 
 	res := global.DB.Where(model.Category{
-		IDModel: model.IDModel{ID: s.Id},
+		IDModel: model.IDModel{ID: b.Id},
 	}).Updates(updates)
 
 	if res.RowsAffected == 0 {
@@ -59,26 +59,26 @@ func (s *Category) Update() (int64, error) {
 	return res.RowsAffected, nil
 }
 
-func (s *Category) Delete() (int64, error) {
-	res := global.DB.Delete(&model.Category{}, s.Id)
+func (b *CategoryBusiness) Delete() (int64, error) {
+	res := global.DB.Delete(&model.Category{}, b.Id)
 	if res.RowsAffected == 0 {
 		return 0, status.Errorf(codes.Internal, "删除失败")
 	}
 	return res.RowsAffected, nil
 }
 
-func (s *Category) List() (*[]model.Category, error) {
+func (b *CategoryBusiness) List() (*[]model.Category, error) {
 	var entity []model.Category
 
 	condition := model.Category{}
-	if s.Level > 0 {
-		condition.Level = s.Level
+	if b.Level > 0 {
+		condition.Level = b.Level
 	}
-	if s.ParentId != nil {
-		condition.ParentId = *s.ParentId
+	if b.ParentId != nil {
+		condition.ParentId = *b.ParentId
 	}
-	if s.IsVisible != nil {
-		condition.IsVisible = *s.IsVisible
+	if b.IsVisible != nil {
+		condition.IsVisible = *b.IsVisible
 	}
 
 	if res := global.DB.Where(condition).Find(&entity); res.Error != nil {
@@ -88,19 +88,19 @@ func (s *Category) List() (*[]model.Category, error) {
 }
 
 // GetMultistageCategory 获取多级分类
-func (s *Category) GetMultistageCategory() ([]interface{}, error) {
+func (b *CategoryBusiness) GetMultistageCategory() ([]interface{}, error) {
 	entity := model.Category{}
-	if res := global.DB.First(&entity, s.Id); res.RowsAffected == 0 {
+	if res := global.DB.First(&entity, b.Id); res.RowsAffected == 0 {
 		return nil, status.Errorf(codes.NotFound, "分类不存在")
 	}
 
 	var subQuery string
 	if entity.Level == 1 {
-		subQuery = fmt.Sprintf("SELECT id FROM category WHERE parent_id IN (SELECT id FROM category WHERE parent_id = %d)", s.Id)
+		subQuery = fmt.Sprintf("SELECT id FROM category WHERE parent_id IN (SELECT id FROM category WHERE parent_id = %d)", b.Id)
 	} else if entity.Level == 2 { // 二级分类
-		subQuery = fmt.Sprintf("SELECT id FROM category WHERE parent_id = %d", s.Id)
+		subQuery = fmt.Sprintf("SELECT id FROM category WHERE parent_id = %d", b.Id)
 	} else { // 三级分类
-		subQuery = fmt.Sprintf("SELECT id FROM category WHERE id = %d", s.Id)
+		subQuery = fmt.Sprintf("SELECT id FROM category WHERE id = %d", b.Id)
 	}
 
 	var categoryIds []interface{}
@@ -112,17 +112,17 @@ func (s *Category) GetMultistageCategory() ([]interface{}, error) {
 	return categoryIds, nil
 }
 
-func (s *Category) Exists() (bool, error) {
+func (b *CategoryBusiness) Exists() (bool, error) {
 	var entity model.Category
 
 	condition := model.Category{}
 
-	if s.Id > 0 {
-		condition.IDModel.ID = s.Id
+	if b.Id > 0 {
+		condition.IDModel.ID = b.Id
 	}
 
-	if s.IsVisible != nil {
-		condition.Visible.IsVisible = *s.IsVisible
+	if b.IsVisible != nil {
+		condition.Visible.IsVisible = *b.IsVisible
 	}
 
 	res := global.DB.Where(condition).Select("id").First(&entity)

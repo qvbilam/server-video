@@ -1,7 +1,7 @@
 syntax = "proto3";
 package userPb.v1;
 import "google/protobuf/empty.proto";
-option go_package="video/api/qvbilam/user/v1/userPb;v1";
+option go_package="video/api/qvbilam/user/v1;userV1";
 
 // 更新用户
 message UpdateRequest{

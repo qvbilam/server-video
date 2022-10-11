@@ -13,7 +13,7 @@ type CategoryServer struct {
 
 func (s *CategoryServer) Create(ctx context.Context, request *proto.UpdateCategoryRequest) (*proto.CategoryResponse, error) {
 	// todo 验证用户权限
-	b := business.Category{
+	b := business.CategoryBusiness{
 		Name:      request.Name,
 		Icon:      request.Icon,
 		Level:     request.Level,
@@ -29,7 +29,7 @@ func (s *CategoryServer) Create(ctx context.Context, request *proto.UpdateCatego
 
 func (s *CategoryServer) Update(ctx context.Context, request *proto.UpdateCategoryRequest) (*emptypb.Empty, error) {
 	// todo 验证用户权限
-	b := business.Category{
+	b := business.CategoryBusiness{
 		Id:        request.Id,
 		Name:      request.Name,
 		Icon:      request.Icon,
@@ -46,7 +46,7 @@ func (s *CategoryServer) Update(ctx context.Context, request *proto.UpdateCatego
 
 func (s *CategoryServer) Delete(ctx context.Context, request *proto.UpdateCategoryRequest) (*emptypb.Empty, error) {
 	// todo 验证用户权限
-	b := business.Category{
+	b := business.CategoryBusiness{
 		Id: request.Id,
 	}
 	_, err := b.Delete()
@@ -57,7 +57,7 @@ func (s *CategoryServer) Delete(ctx context.Context, request *proto.UpdateCatego
 }
 
 func (s *CategoryServer) Get(ctx context.Context, request *proto.GetCategoryRequest) (*proto.GetCategoryResponse, error) {
-	b := business.Category{
+	b := business.CategoryBusiness{
 		Level:     request.Level,
 		ParentId:  &request.ParentId,
 		IsVisible: &request.IsVisible,

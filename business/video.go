@@ -15,9 +15,9 @@ type VideoListResponse struct {
 	Videos []model.Video
 }
 
-type Video struct {
+type VideoBusiness struct {
 	Id             int64
-	AliCloudId     string
+	FileId         int64
 	UserId         int64
 	CategoryId     int64
 	Name           string
@@ -57,20 +57,20 @@ type Video struct {
 	Sort string
 }
 
-func (s *Video) Create() (int64, error) {
+func (b *VideoBusiness) Create() (int64, error) {
 	// 开启事物
 	tx := global.DB.Begin()
 
 	// 视频实例
 	entity := model.Video{
 		UserModel: model.UserModel{
-			UserID: s.UserId,
+			UserID: b.UserId,
 		},
-		CategoryId:     s.CategoryId,
-		Name:           s.Name,
-		Introduction:   s.Introduction,
-		Icon:           s.Icon,
-		HorizontalIcon: s.HorizontalIcon,
+		CategoryId:     b.CategoryId,
+		Name:           b.Name,
+		Introduction:   b.Introduction,
+		Icon:           b.Icon,
+		HorizontalIcon: b.HorizontalIcon,
 		Visible:        model.Visible{},
 	}
 
@@ -85,11 +85,11 @@ func (s *Video) Create() (int64, error) {
 		return 0, status.Errorf(codes.Internal, "创建视频失败: %s", cvRes.Error)
 	}
 
-	if s.DramaId != 0 {
+	if b.DramaId != 0 {
 		dvBis := DramaVideoBusiness{
-			DramaId: s.DramaId,
+			DramaId: b.DramaId,
 			VideoId: entity.ID,
-			Episode: s.Episode,
+			Episode: b.Episode,
 		}
 		if _, err := dvBis.UpdateEpisode(tx); err != nil {
 			tx.Rollback()
@@ -101,19 +101,19 @@ func (s *Video) Create() (int64, error) {
 	return entity.ID, nil
 }
 
-func (s *Video) Update() (int64, error) {
+func (b *VideoBusiness) Update() (int64, error) {
 	tx := global.DB.Begin()
 	videoEntity := model.Video{}
-	if res := global.DB.First(&videoEntity, s.Id); res.RowsAffected == 0 {
+	if res := global.DB.First(&videoEntity, b.Id); res.RowsAffected == 0 {
 		tx.Rollback()
 		return 0, status.Errorf(codes.NotFound, "视频不存在")
 	}
-	videoEntity.CategoryId = s.CategoryId
-	videoEntity.Name = s.Name
-	videoEntity.Introduction = s.Introduction
-	videoEntity.Icon = s.Icon
-	videoEntity.HorizontalIcon = s.HorizontalIcon
-	videoEntity.Score = s.Score
+	videoEntity.CategoryId = b.CategoryId
+	videoEntity.Name = b.Name
+	videoEntity.Introduction = b.Introduction
+	videoEntity.Icon = b.Icon
+	videoEntity.HorizontalIcon = b.HorizontalIcon
+	videoEntity.Score = b.Score
 
 	res := global.DB.Save(&videoEntity)
 	if res.Error != nil {
@@ -126,17 +126,29 @@ func (s *Video) Update() (int64, error) {
 		return 0, status.Errorf(codes.Internal, "更新失败")
 	}
 
+	if b.DramaId != 0 {
+		dvBis := DramaVideoBusiness{
+			DramaId: b.DramaId,
+			VideoId: b.Id,
+			Episode: b.Episode,
+		}
+		if _, err := dvBis.UpdateEpisode(tx); err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+	}
+
 	tx.Commit()
 	return res.RowsAffected, nil
 }
 
-func (s *Video) Delete() (int64, error) {
+func (b *VideoBusiness) Delete() (int64, error) {
 	tx := global.DB.Begin()
 
 	// 注意: 删除实体进入afterDelete是获取不到ID的. 需要在模型中传入请求的参数id
-	res := tx.Where(s.Id).Delete(&model.Video{
-		IDModel: model.IDModel{ID: s.Id},
-	}, s.Id)
+	res := tx.Where(b.Id).Delete(&model.Video{
+		IDModel: model.IDModel{ID: b.Id},
+	}, b.Id)
 	if res.Error != nil {
 		tx.Rollback()
 		return 0, status.Errorf(codes.Internal, "删除异常: %s", res.Error)
@@ -151,50 +163,50 @@ func (s *Video) Delete() (int64, error) {
 	return res.RowsAffected, nil
 }
 
-func (s *Video) Detail() (*model.Video, error) {
+func (b *VideoBusiness) Detail() (*model.Video, error) {
 	videoEntity := model.Video{}
 	// todo 关联
 	if res := global.DB.
-		First(&videoEntity, s.Id); res.RowsAffected == 0 {
+		First(&videoEntity, b.Id); res.RowsAffected == 0 {
 		return nil, status.Errorf(codes.NotFound, "视频不存在")
 	}
 
 	return &videoEntity, nil
 }
 
-func (s *Video) List() (*VideoListResponse, error) {
+func (b *VideoBusiness) List() (*VideoListResponse, error) {
 	switch {
-	case s.PerPage <= 0:
-		s.PerPage = 10
-	case s.PerPage > 1000:
-		s.PerPage = 1000
+	case b.PerPage <= 0:
+		b.PerPage = 10
+	case b.PerPage > 1000:
+		b.PerPage = 1000
 	}
 	// 分页数据
-	if s.Page == 0 {
-		s.Page = 1
+	if b.Page == 0 {
+		b.Page = 1
 	}
-	s.Page = (s.Page - 1) * s.PerPage
+	b.Page = (b.Page - 1) * b.PerPage
 
 	// 多级分类
-	if s.CategoryId > 0 {
-		cs := Category{}
+	if b.CategoryId > 0 {
+		cs := CategoryBusiness{}
 		var err error
-		s.CategoryIds, err = cs.GetMultistageCategory()
+		b.CategoryIds, err = cs.GetMultistageCategory()
 		if err != nil {
 			return nil, err
 		}
 	}
 	// 获取 ES query
-	q := s.GetVideosESQuery()
+	q := b.GetVideosESQuery()
 
 	// 查询
 	result, err := global.ES.
 		Search().
 		Index(model.VideoES{}.GetIndexName()).
 		Query(q).
-		SortWithInfo(s.GetESVideoSortInfo()).
-		From(int(s.Page)).
-		Size(int(s.PerPage)).
+		SortWithInfo(b.GetESVideoSortInfo()).
+		From(int(b.Page)).
+		Size(int(b.PerPage)).
 		Do(context.Background())
 	if err != nil {
 		return nil, err
@@ -225,79 +237,79 @@ func (s *Video) List() (*VideoListResponse, error) {
 	}, nil
 }
 
-func (s *Video) GetVideosESQuery() *elastic.BoolQuery {
+func (b *VideoBusiness) GetVideosESQuery() *elastic.BoolQuery {
 	// match bool 复合查询
 	q := elastic.NewBoolQuery()
 
-	if s.Keyword != "" { // 搜索 名称, 简介
-		q = q.Must(elastic.NewMultiMatchQuery(s.Keyword, "name", "introduction"))
+	if b.Keyword != "" { // 搜索 名称, 简介
+		q = q.Must(elastic.NewMultiMatchQuery(b.Keyword, "name", "introduction"))
 	}
-	if s.UserId > 0 { // 搜索用户
-		q = q.Filter(elastic.NewTermQuery("user_id", s.UserId))
+	if b.UserId > 0 { // 搜索用户
+		q = q.Filter(elastic.NewTermQuery("user_id", b.UserId))
 	}
 
-	if s.IsHot { // 搜索热度
-		q = q.Filter(elastic.NewTermQuery("is_hot", s.IsHot))
+	if b.IsHot { // 搜索热度
+		q = q.Filter(elastic.NewTermQuery("is_hot", b.IsHot))
 	}
-	if s.IsNew { // 搜索新品
-		q = q.Filter(elastic.NewTermQuery("is_new", s.IsNew))
+	if b.IsNew { // 搜索新品
+		q = q.Filter(elastic.NewTermQuery("is_new", b.IsNew))
 	}
-	if s.IsVisible { // 搜索展示状态
-		q = q.Filter(elastic.NewTermQuery("is_visible", s.IsNew))
+	if b.IsVisible { // 搜索展示状态
+		q = q.Filter(elastic.NewTermQuery("is_visible", b.IsNew))
 	}
 
 	// 多级分类查找
-	if len(s.CategoryIds) > 0 {
-		q = q.Filter(elastic.NewTermsQuery("category_id", s.CategoryIds...))
+	if len(b.CategoryIds) > 0 {
+		q = q.Filter(elastic.NewTermsQuery("category_id", b.CategoryIds...))
 	}
 
 	// 范围查询
-	if s.FavoriteCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("favorite_count").Gte(s.FavoriteCountMin))
+	if b.FavoriteCountMin > 0 {
+		q = q.Filter(elastic.NewRangeQuery("favorite_count").Gte(b.FavoriteCountMin))
 	}
 
-	if s.FavoriteCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("favorite_count").Lte(s.FavoriteCountMax))
+	if b.FavoriteCountMax > 0 {
+		q = q.Filter(elastic.NewRangeQuery("favorite_count").Lte(b.FavoriteCountMax))
 	}
 
-	if s.LikeCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("like_count").Gte(s.LikeCountMin))
+	if b.LikeCountMin > 0 {
+		q = q.Filter(elastic.NewRangeQuery("like_count").Gte(b.LikeCountMin))
 	}
 
-	if s.LikeCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("like_count").Lte(s.LikeCountMax))
+	if b.LikeCountMax > 0 {
+		q = q.Filter(elastic.NewRangeQuery("like_count").Lte(b.LikeCountMax))
 	}
 
-	if s.PlayCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("play_count").Gte(s.PlayCountMin))
+	if b.PlayCountMin > 0 {
+		q = q.Filter(elastic.NewRangeQuery("play_count").Gte(b.PlayCountMin))
 	}
 
-	if s.PlayCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("play_count").Lte(s.PlayCountMax))
+	if b.PlayCountMax > 0 {
+		q = q.Filter(elastic.NewRangeQuery("play_count").Lte(b.PlayCountMax))
 	}
 
-	if s.BarrageCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("barrage_count").Gte(s.BarrageCountMin))
+	if b.BarrageCountMin > 0 {
+		q = q.Filter(elastic.NewRangeQuery("barrage_count").Gte(b.BarrageCountMin))
 	}
 
-	if s.BarrageCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("barrage_count").Lte(s.BarrageCountMax))
+	if b.BarrageCountMax > 0 {
+		q = q.Filter(elastic.NewRangeQuery("barrage_count").Lte(b.BarrageCountMax))
 	}
 
 	return q
 }
 
-func (s *Video) GetESVideoSortInfo() elastic.SortInfo {
+func (b *VideoBusiness) GetESVideoSortInfo() elastic.SortInfo {
 	sort := elastic.SortInfo{
 		Field:     "play_count",
 		Ascending: false,
 	}
 
-	if s.Sort != "" {
-		if string(s.Sort[0]) == "-" {
-			sort.Field = s.Sort[0:]
+	if b.Sort != "" {
+		if string(b.Sort[0]) == "-" {
+			sort.Field = b.Sort[0:]
 		} else {
-			sort.Field = s.Sort
+			sort.Field = b.Sort
 			sort.Ascending = true
 		}
 	}

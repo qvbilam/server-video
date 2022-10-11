@@ -32,7 +32,7 @@ type VideoES struct {
 type Video struct {
 	IDModel
 	UserModel
-	AliCloudId     string  `gorm:"type:varchar(255); not null default '';comment:阿里视频id"`
+	FileId         int64   `gorm:"type:int(11); not null default 0';comment:视频文件id"`
 	CategoryId     int64   `gorm:"type:int not null default 0;comment:分类id;index:idx_category_id"`
 	Name           string  `gorm:"type:varchar(255); not null default '';comment:名称"`
 	Introduction   string  `gorm:"type:varchar(2048); not null default '';comment:简介"`
