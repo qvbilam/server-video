@@ -26,7 +26,7 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 
 	videoBusiness := business.Video{
 		DramaId:        request.DramaId,
-		Episode:        request.Episode,
+		Episode:        &request.Episode,
 		AliCloudId:     request.AliCloudId,
 		UserId:         request.UserId,
 		CategoryId:     request.CategoryId,
