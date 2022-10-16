@@ -65,9 +65,8 @@ func Migrate(db *gorm.DB) {
 }
 
 func Insert(db *gorm.DB) {
-	//CreateCategory(db)
-	//CreateRegions(db)
-	// todo 数据结构变动, 不适合插入
-	//CreateEpisodes(db)
-	//CreateVideo(db)
+	CreateCategory(db)
+	CreateRegions(db)
+	// 创建剧集视频
+	CreateDramaVideo(db)
 }

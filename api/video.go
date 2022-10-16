@@ -31,7 +31,7 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 		UserId:         request.UserId,
 		CategoryId:     request.CategoryId,
 		Name:           request.Name,
-		Introduction:   request.Introduction,
+		Introduce:      request.Introduce,
 		Icon:           request.Icon,
 		HorizontalIcon: request.HorizontalIcon,
 	}
@@ -52,7 +52,7 @@ func (s *VideoServer) Update(ctx context.Context, request *proto.UpdateVideoRequ
 		FileId:         request.FileId,
 		CategoryId:     request.CategoryId,
 		Name:           request.Name,
-		Introduction:   request.Introduction,
+		Introduce:      request.Introduce,
 		Icon:           request.Icon,
 		HorizontalIcon: request.HorizontalIcon,
 		Score:          float64(request.Score),
@@ -82,7 +82,7 @@ func (s *VideoServer) Get(ctx context.Context, request *proto.SearchVideoRequest
 		return nil, err
 	}
 
-	response := proto.VideosResponse{Total: res.Total}
+	response := proto.VideosResponse{Total: res.Total, Videos: nil}
 	// 结果转换
 	var userIds []int64
 	userMaps := make(map[int64]*userProto.UserResponse)
@@ -159,7 +159,7 @@ func modelToResponse(video model.Video) proto.VideoResponse {
 			Id: video.CategoryId,
 		},
 		Name:           video.Name,
-		Introduction:   video.Introduction,
+		Introduce:      video.Introduce,
 		Icon:           video.Icon,
 		HorizontalIcon: video.HorizontalIcon,
 		Score:          float32(video.Score),

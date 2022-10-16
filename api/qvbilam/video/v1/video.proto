@@ -11,7 +11,7 @@ message VideoResponse {
   CategoryResponse category = 3;
   VideoUserResponse user = 4;
   string name = 5;
-  string introduction = 6;
+  string introduce = 6;
   string url = 7;
   string icon = 8;
   string horizontal_icon = 9;
@@ -32,7 +32,7 @@ message UpdateVideoRequest{
   int64 categoryId = 3;
   int64 userId = 4;
   string name = 5;
-  string introduction = 6;
+  string introduce = 6;
   string url = 7;
   string icon = 8;
   string horizontalIcon = 9;

@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"video/global"
 	"video/model"
+	"video/model/doc"
 )
 
 func InitElasticSearch() {
@@ -49,14 +50,14 @@ func createVideoIndex() {
 }
 
 func createDramaIndex() {
-	exists, err := global.ES.IndexExists(model.DramaES{}.GetIndexName()).Do(context.Background())
+	exists, err := global.ES.IndexExists(doc.Drama{}.GetIndexName()).Do(context.Background())
 	if err != nil {
 		zap.S().Panicf("视频索引异常: %s", err)
 	}
 	if !exists { // 创建索引
 		createIndex, err := global.ES.
-			CreateIndex(model.DramaES{}.GetIndexName()).
-			BodyString(model.DramaES{}.GetMapping()).
+			CreateIndex(doc.Drama{}.GetIndexName()).
+			BodyString(doc.Drama{}.GetMapping()).
 			Do(context.Background())
 		if err != nil {
 			zap.S().Panicf("创建剧集索引异常: %s", err)

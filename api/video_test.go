@@ -9,6 +9,7 @@ import (
 )
 
 var Client proto.VideoClient
+var DramaClient proto.DramaClient
 
 func initClient() {
 	port := 9802
@@ -18,6 +19,7 @@ func initClient() {
 	}
 
 	Client = proto.NewVideoClient(conn)
+	DramaClient = proto.NewDramaClient(conn)
 }
 
 // 创建视频
@@ -28,7 +30,7 @@ func TestVideoServer_Create(t *testing.T) {
 		UserId:         1,
 		CategoryId:     1,
 		Name:           "测试视频",
-		Introduction:   "测试视频简介",
+		Introduce:      "测试视频简介",
 		Icon:           "测试视频图标",
 		HorizontalIcon: "测试视频纵版图标",
 	})

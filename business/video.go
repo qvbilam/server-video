@@ -21,7 +21,7 @@ type VideoBusiness struct {
 	UserId         int64
 	CategoryId     int64
 	Name           string
-	Introduction   string
+	Introduce      string
 	Icon           string
 	HorizontalIcon string
 	TotalCount     int64
@@ -68,7 +68,7 @@ func (b *VideoBusiness) Create() (int64, error) {
 		},
 		CategoryId:     b.CategoryId,
 		Name:           b.Name,
-		Introduction:   b.Introduction,
+		Introduce:      b.Introduce,
 		Icon:           b.Icon,
 		HorizontalIcon: b.HorizontalIcon,
 		Visible:        model.Visible{},
@@ -110,7 +110,7 @@ func (b *VideoBusiness) Update() (int64, error) {
 	}
 	videoEntity.CategoryId = b.CategoryId
 	videoEntity.Name = b.Name
-	videoEntity.Introduction = b.Introduction
+	videoEntity.Introduce = b.Introduce
 	videoEntity.Icon = b.Icon
 	videoEntity.HorizontalIcon = b.HorizontalIcon
 	videoEntity.Score = b.Score
@@ -196,18 +196,24 @@ func (b *VideoBusiness) List() (*VideoListResponse, error) {
 			return nil, err
 		}
 	}
-	// 获取 ES query
-	q := b.GetVideosESQuery()
 
-	// 查询
-	result, err := global.ES.
-		Search().
-		Index(model.VideoES{}.GetIndexName()).
-		Query(q).
-		SortWithInfo(b.GetESVideoSortInfo()).
-		From(int(b.Page)).
-		Size(int(b.PerPage)).
-		Do(context.Background())
+	//// 获取 ES query
+	//q := b.GetVideosESQuery()
+	//
+	//// 查询
+	//result, err := global.ES.
+	//	Search().
+	//	Index(model.VideoES{}.GetIndexName()).
+	//	Query(q).
+	//	SortWithInfo(b.GetESVideoSortInfo()).
+	//	From(int(b.Page)).
+	//	Size(int(b.PerPage)).
+	//	Do(context.Background())
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	result, err := b.VideoESSearch()
 	if err != nil {
 		return nil, err
 	}
@@ -235,6 +241,26 @@ func (b *VideoBusiness) List() (*VideoListResponse, error) {
 		Total:  total,
 		Videos: videos,
 	}, nil
+}
+
+func (b *VideoBusiness) VideoESSearch() (*elastic.SearchResult, error) {
+	// 获取 ES query
+	q := b.GetVideosESQuery()
+
+	// 查询
+	result, err := global.ES.
+		Search().
+		Index(model.VideoES{}.GetIndexName()).
+		Query(q).
+		SortWithInfo(b.GetESVideoSortInfo()).
+		From(int(b.Page)).
+		Size(int(b.PerPage)).
+		Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (b *VideoBusiness) GetVideosESQuery() *elastic.BoolQuery {

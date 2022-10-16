@@ -23,19 +23,20 @@ type VideoES struct {
 
 	Score float64 `json:"score"`
 
-	AliCloudId string `json:"ali_cloud_id"`
-	Name       string `json:"name"`
-	Introduce  string `json:"introduce"`
+	Type      string `json:"type"`
+	Name      string `json:"name"`
+	Introduce string `json:"introduce"`
 }
 
 // Video 视频
 type Video struct {
 	IDModel
 	UserModel
+	Type           string  `gorm:"type:varchar(255); not null default '';comment:类型;anime:动漫,movie:影视"`
 	FileId         int64   `gorm:"type:int(11); not null default 0';comment:视频文件id"`
 	CategoryId     int64   `gorm:"type:int not null default 0;comment:分类id;index:idx_category_id"`
 	Name           string  `gorm:"type:varchar(255); not null default '';comment:名称"`
-	Introduction   string  `gorm:"type:varchar(2048); not null default '';comment:简介"`
+	Introduce      string  `gorm:"type:varchar(2048); not null default '';comment:简介"`
 	Icon           string  `gorm:"type:varchar(255); not null default '';comment:横版图标"`
 	HorizontalIcon string  `gorm:"type:varchar(255); not null default '';comment:纵版图标"`
 	Score          float64 `gorm:"type:decimal(1,1);not null default 0;comment:评分"`
@@ -90,6 +91,7 @@ func (video *Video) AfterDelete(tx *gorm.DB) error {
 func videoModelToEsIndex(video *Video) *VideoES {
 	return &VideoES{
 		ID:            video.ID,
+		Type:          video.Type,
 		UserID:        video.UserID,
 		CategoryID:    video.CategoryId,
 		FavoriteCount: video.FavoriteCount,
@@ -102,7 +104,7 @@ func videoModelToEsIndex(video *Video) *VideoES {
 		IsVisible:     video.IsVisible,
 		Score:         video.Score,
 		Name:          video.Name,
-		Introduce:     video.Introduction,
+		Introduce:     video.Introduce,
 	}
 }
 
@@ -147,7 +149,7 @@ func (VideoES) GetMapping() string {
             "score":{
                 "type":"float"
             },
-            "ali_cloud_id":{
+            "type":{
                 "type":"text"
             },
             "name":{
