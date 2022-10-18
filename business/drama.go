@@ -6,10 +6,11 @@ import (
 	"github.com/olivere/elastic/v7"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strconv"
 	"video/global"
 	"video/model"
+	"video/model/doc"
 )
 
 type DramaListResponse struct {
@@ -90,118 +91,64 @@ func (b *DramaBusiness) Update() (int64, error) {
 }
 
 func (b *DramaBusiness) List() (*DramaListResponse, error) {
-	var drams []model.Drama
-	global.DB.
-		Where(model.Video{IDModel: model.IDModel{ID: 2}}).
-		Preload("DramaVideos", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("Video", func(db *gorm.DB) *gorm.DB {
-				return db.Select("id", "file_id", "name", "introduce")
-			})
-		}).
-		Find(&drams)
-
-	for _, e := range drams {
-		for _, vs := range e.DramaVideos {
-			fmt.Printf("id: %d, name: %s, episode: %d\n", vs.Video.ID, vs.Video.Name, vs.Episode)
-		}
+	if b.PerPage <= 0 {
+		b.PerPage = 10
 	}
 
-	return nil, nil
-	q := b.GetESQuery()
-	result, err := global.ES.
-		Search().
-		Index(model.VideoES{}.GetIndexName()).
-		Query(q).
-		SortWithInfo(b.GetESSortInfo()).
-		From(int(b.Page)).
-		Size(int(b.PerPage)).
-		Do(context.Background())
+	result, err := b.ElasticSearch()
 
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Printf("%+v\n", result)
+	res := &DramaListResponse{}
+	res.Total = result.TotalHits()
+
+	var dramaIds []int64
+	for _, hit := range result.Hits.Hits {
+		dramaId, _ := strconv.Atoi(hit.Id)
+		dramaIds = append(dramaIds, int64(dramaId))
+		fmt.Println("================")
+		fmt.Println(hit.Highlight)
+	}
+	// todo 返回数据库查询， 替换高亮字段
 
 	return nil, nil
 }
 
-func (b *DramaBusiness) GetESQuery() *elastic.BoolQuery {
-	// match bool 复合查询
-	q := elastic.NewBoolQuery()
-
-	if b.Keyword != "" { // 搜索 名称, 简介
-		q = q.Must(elastic.NewMultiMatchQuery(b.Keyword, "name", "introduction"))
+func (b *DramaBusiness) ElasticSearch() (*elastic.SearchResult, error) {
+	d := &doc.DramaSearch{
+		Keyword:          b.Keyword,
+		Type:             b.Type,
+		UserId:           b.UserId,
+		IsHot:            b.IsHot,
+		IsNew:            b.IsNew,
+		IsVisible:        b.IsVisible,
+		FavoriteCountMin: b.FavoriteCountMin,
+		FavoriteCountMax: b.FavoriteCountMax,
+		LikeCountMin:     b.LikeCountMin,
+		LikeCountMax:     b.LikeCountMax,
+		PlayCountMin:     b.PlayCountMin,
+		PlayCountMax:     b.PlayCountMax,
+		BarrageCountMin:  b.BarrageCountMin,
+		BarrageCountMax:  b.BarrageCountMax,
 	}
 
-	if b.Type != "" { // 搜索类型
-		q = q.Filter(elastic.NewTermQuery("type", b.Type))
-	}
+	q := d.GetQuery()
+	highlightFields := []string{"name", "introduce", "videos.name", "videos.introduce"}
+	highlightPreTags := `<font color="#FF0000">`
+	highlightPostTags := `"</font>"`
+	h := doc.SetHighlight(highlightFields, highlightPreTags, highlightPostTags)
+	s := doc.SetSort(b.Sort)
 
-	if b.UserId > 0 { // 搜索用户
-		q = q.Filter(elastic.NewTermQuery("user_id", b.UserId))
+	client := global.ES.Search()
+	client.Index(doc.Drama{}.GetIndexName())
+	client.Query(q)
+	client.From(int(b.Page))
+	client.Size(int(b.PerPage))
+	client.Highlight(h)
+	if s != nil {
+		client.SortWithInfo(*s)
 	}
-
-	if b.IsHot != nil { // 搜索热度
-		q = q.Filter(elastic.NewTermQuery("is_hot", b.IsHot))
-	}
-	if b.IsNew != nil { // 搜索新品
-		q = q.Filter(elastic.NewTermQuery("is_new", b.IsNew))
-	}
-	if b.IsVisible != nil { // 搜索展示状态
-		q = q.Filter(elastic.NewTermQuery("is_visible", b.IsNew))
-	}
-
-	// 范围查询
-	if b.FavoriteCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("favorite_count").Gte(b.FavoriteCountMin))
-	}
-
-	if b.FavoriteCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("favorite_count").Lte(b.FavoriteCountMax))
-	}
-
-	if b.LikeCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("like_count").Gte(b.LikeCountMin))
-	}
-
-	if b.LikeCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("like_count").Lte(b.LikeCountMax))
-	}
-
-	if b.PlayCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("play_count").Gte(b.PlayCountMin))
-	}
-
-	if b.PlayCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("play_count").Lte(b.PlayCountMax))
-	}
-
-	if b.BarrageCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("barrage_count").Gte(b.BarrageCountMin))
-	}
-
-	if b.BarrageCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("barrage_count").Lte(b.BarrageCountMax))
-	}
-
-	return q
-}
-
-func (b *DramaBusiness) GetESSortInfo() elastic.SortInfo {
-	sort := elastic.SortInfo{
-		Field:     "play_count",
-		Ascending: false,
-	}
-
-	if b.Sort != "" {
-		if string(b.Sort[0]) == "-" {
-			sort.Field = b.Sort[0:]
-		} else {
-			sort.Field = b.Sort
-			sort.Ascending = true
-		}
-	}
-
-	return sort
+	return client.Do(context.Background())
 }

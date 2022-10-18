@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/olivere/elastic/v7"
 	"go.uber.org/zap"
+	"log"
+	"os"
 	"video/global"
 	"video/model"
 	"video/model/doc"
@@ -17,9 +19,9 @@ func InitElasticSearch() {
 	url := elastic.SetURL(fmt.Sprintf("http://%s:%d", host, port))
 	sniff := elastic.SetSniff(false) // 不将本地地址转换
 	var err error
-	//logger := log.New(os.Stdout, "elasticsearch", log.LstdFlags) // 设置日志输出位置
-	//global.ES, err = elastic.NewClient(url, sniff, elastic.SetTraceLog(logger))
-	global.ES, err = elastic.NewClient(url, sniff)
+	logger := log.New(os.Stdout, "elasticsearch", log.LstdFlags) // 设置日志输出位置
+	global.ES, err = elastic.NewClient(url, sniff, elastic.SetTraceLog(logger))
+	//global.ES, err = elastic.NewClient(url, sniff)
 	if err != nil {
 		zap.S().Panicf("连接es异常: %s", err.Error())
 	}

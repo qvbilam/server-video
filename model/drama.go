@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"gorm.io/gorm"
 	"reflect"
 	"strconv"
@@ -43,7 +42,7 @@ func (drama *Drama) IsEmpty() bool {
 }
 
 func (drama *Drama) AfterCreate(tx *gorm.DB) error {
-	esModel := ToDoc(drama)
+	esModel := ToDoc(drama, nil)
 	// 写入es
 	_, err := global.ES.
 		Index().
@@ -56,9 +55,6 @@ func (drama *Drama) AfterCreate(tx *gorm.DB) error {
 
 func (drama *Drama) AfterUpdate(tx *gorm.DB) error {
 	videos := GetDramaVideos(drama.ID)
-	fmt.Println("=============================")
-	fmt.Println(videos)
-	fmt.Println("=============================")
 	esModel := ToDoc(drama, videos)
 	// 更新es. 指定 id 防止重复
 	_, err := global.ES.
@@ -83,8 +79,7 @@ func (drama *Drama) AfterDelete(tx *gorm.DB) error {
 }
 
 func ToDoc(drama *Drama, videos *[]DramaVideo) *doc.Drama {
-	var dramVideos []doc.DramaVideos
-	return &doc.Drama{
+	d := &doc.Drama{
 		ID:            drama.ID,
 		UserID:        drama.UserID,
 		RegionID:      drama.RegionId,
@@ -103,6 +98,19 @@ func ToDoc(drama *Drama, videos *[]DramaVideo) *doc.Drama {
 		Score:         drama.Score,
 		Name:          drama.Name,
 		Introduce:     drama.Introduce,
-		Videos:        dramVideos,
 	}
+	if videos != nil {
+		var dv []doc.DramaVideos
+		for _, v := range *videos {
+			dv = append(dv, doc.DramaVideos{
+				ID:        v.Video.ID,
+				Name:      v.Video.Name,
+				Introduce: v.Video.Introduce,
+				Episode:   v.Episode,
+			})
+		}
+		d.Videos = dv
+	}
+
+	return d
 }

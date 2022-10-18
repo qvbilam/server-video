@@ -1,7 +1,6 @@
 package initialize
 
 import (
-	"context"
 	"fmt"
 	retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"go.uber.org/zap"
@@ -44,7 +43,6 @@ func clientOption() []retry.CallOption {
 
 func (s *serverClientConfig) initUserServer() {
 	opts := clientOption()
-	fmt.Printf("nmd: %s:%d\n", s.userDialConfig.host, s.userDialConfig.port)
 
 	conn, err := grpc.Dial(
 		fmt.Sprintf("%s:%d", s.userDialConfig.host, s.userDialConfig.port),
@@ -55,9 +53,6 @@ func (s *serverClientConfig) initUserServer() {
 	}
 
 	userClient := userProto.NewUserClient(conn)
-	res, err := userClient.Detail(context.Background(), &userProto.GetUserRequest{Id: 1})
-	fmt.Println(err)
-	fmt.Println(res)
 
 	global.UserServerClient = userClient
 }

@@ -32,6 +32,7 @@ func (s *DramaServer) Delete(ctx context.Context, request *proto.UpdateDramaRequ
 
 func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest) (*proto.DramaListResponse, error) {
 	b := business.DramaBusiness{}
+	b.Keyword = request.Keyword
 	_, err := b.List()
 	if err != nil {
 		return nil, err

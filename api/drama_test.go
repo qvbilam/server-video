@@ -11,7 +11,7 @@ func TestDramaServer_Get(t *testing.T) {
 	initClient()
 
 	response, err := DramaClient.Get(context.Background(), &proto.SearchDramaRequest{
-		Keyword: "fate",
+		Keyword: "虚假",
 	})
 
 	if err != nil {
