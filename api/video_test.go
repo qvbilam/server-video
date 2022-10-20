@@ -33,6 +33,8 @@ func TestVideoServer_Create(t *testing.T) {
 		Introduce:      "测试视频简介",
 		Icon:           "测试视频图标",
 		HorizontalIcon: "测试视频纵版图标",
+		DramaId:        3,
+		Episode:        1,
 	})
 
 	if err != nil {

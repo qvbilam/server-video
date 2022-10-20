@@ -18,15 +18,24 @@ func (b *DramaVideoBusiness) Create(tx *gorm.DB) error {
 	if b.Episode == nil || b.DramaId == 0 || b.VideoId == 0 {
 		return status.Errorf(codes.InvalidArgument, "缺少参数")
 	}
-	entity := model.DramaVideo{}
-	if res := tx.Where(model.DramaVideo{
+
+	condition := model.DramaVideo{
 		DramaId: b.DramaId,
 		Episode: *b.Episode,
-		Video:   model.Video{},
-	}).Find(&entity); res.RowsAffected != 0 {
+	}
+
+	exists := model.DramaVideo{}
+	if res := tx.Where(condition).First(&exists); res.RowsAffected != 0 {
 		return status.Errorf(codes.AlreadyExists, "剧集已存在")
 	}
-	if res := tx.Save(&entity); res.RowsAffected == 0 {
+
+	entity := model.DramaVideo{
+		DramaId: b.DramaId,
+		VideoId: b.VideoId,
+		Episode: *b.Episode,
+	}
+
+	if res := tx.Create(&entity); res.RowsAffected == 0 {
 		return status.Errorf(codes.Internal, "创建失败")
 	}
 	return nil
@@ -34,7 +43,7 @@ func (b *DramaVideoBusiness) Create(tx *gorm.DB) error {
 
 func (b *DramaVideoBusiness) Update(tx *gorm.DB) (int64, error) {
 	if b.DramaId == 0 {
-		return 0, nil
+		return 0, status.Errorf(codes.InvalidArgument, "错误参数")
 	}
 	dramaEntity := model.Drama{}
 	if res := tx.First(&dramaEntity, b.DramaId); res.RowsAffected == 0 {
