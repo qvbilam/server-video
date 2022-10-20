@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"video/global"
-	"video/model"
 	"video/model/doc"
 )
 
@@ -32,14 +31,14 @@ func InitElasticSearch() {
 }
 
 func createVideoIndex() {
-	exists, err := global.ES.IndexExists(model.VideoES{}.GetIndexName()).Do(context.Background())
+	exists, err := global.ES.IndexExists(doc.Video{}.GetIndexName()).Do(context.Background())
 	if err != nil {
 		zap.S().Panicf("视频索引异常: %s", err)
 	}
 	if !exists { // 创建索引
 		createIndex, err := global.ES.
-			CreateIndex(model.VideoES{}.GetIndexName()).
-			BodyString(model.VideoES{}.GetMapping()).
+			CreateIndex(doc.Video{}.GetIndexName()).
+			BodyString(doc.Video{}.GetMapping()).
 			Do(context.Background())
 		if err != nil {
 			zap.S().Panicf("创建视频索引异常: %s", err)

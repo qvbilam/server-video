@@ -5,28 +5,8 @@ import (
 	"gorm.io/gorm"
 	"strconv"
 	"video/global"
+	"video/model/doc"
 )
-
-type VideoES struct {
-	ID            int64 `json:"id"`
-	UserID        int64 `json:"user_id"`
-	CategoryID    int64 `json:"category_id"`
-	FavoriteCount int64 `json:"favorite_count"`
-	LikeCount     int64 `json:"like_count"`
-	PlayCount     int64 `json:"play_count"`
-	BarrageCount  int64 `json:"barrage_count"`
-
-	IsRecommend bool `json:"is_recommend"`
-	IsNew       bool `json:"is_new"`
-	IsHot       bool `json:"is_hot"`
-	IsVisible   bool `json:"isVisible"`
-
-	Score float64 `json:"score"`
-
-	Type      string `json:"type"`
-	Name      string `json:"name"`
-	Introduce string `json:"introduce"`
-}
 
 // Video 视频
 type Video struct {
@@ -53,24 +33,24 @@ type Video struct {
 }
 
 func (video *Video) AfterCreate(tx *gorm.DB) error {
-	esModel := videoModelToEsIndex(video)
+	d := video.ToDoc()
 	// 写入es
 	_, err := global.ES.
 		Index().
-		Index(VideoES{}.GetIndexName()).
-		BodyJson(esModel).
+		Index(doc.Video{}.GetIndexName()).
+		BodyJson(d).
 		Id(strconv.Itoa(int(video.ID))).
 		Do(context.Background())
 	return err
 }
 
 func (video *Video) AfterUpdate(tx *gorm.DB) error {
-	esModel := videoModelToEsIndex(video)
+	d := video.ToDoc()
 	// 更新es. 指定 id 防止重复
 	_, err := global.ES.
 		Update().
-		Index(VideoES{}.GetIndexName()).
-		Doc(esModel).
+		Index(doc.Video{}.GetIndexName()).
+		Doc(d).
 		Id(strconv.Itoa(int(video.ID))).
 		Do(context.Background())
 
@@ -81,15 +61,15 @@ func (video *Video) AfterDelete(tx *gorm.DB) error {
 	// 删除 es 数据
 	_, err := global.ES.
 		Delete().
-		Index(VideoES{}.GetIndexName()).
+		Index(doc.Video{}.GetIndexName()).
 		Id(strconv.Itoa(int(video.ID))).
 		Do(context.Background())
 
 	return err
 }
 
-func videoModelToEsIndex(video *Video) *VideoES {
-	return &VideoES{
+func (video *Video) ToDoc() *doc.Video {
+	return &doc.Video{
 		ID:            video.ID,
 		Type:          video.Type,
 		UserID:        video.UserID,
@@ -106,63 +86,4 @@ func videoModelToEsIndex(video *Video) *VideoES {
 		Name:          video.Name,
 		Introduce:     video.Introduce,
 	}
-}
-
-func (VideoES) GetIndexName() string {
-	return "video"
-}
-
-func (VideoES) GetMapping() string {
-	videoMapping := `{
-    "mappings":{
-        "properties":{
-            "user_id":{
-                "type":"integer"
-            },
-            "category_id":{
-                "type":"integer"
-            },
-            "favorite_count":{
-                "type":"integer"
-            },
-            "like_count":{
-                "type":"integer"
-            },
-            "play_count":{
-                "type":"integer"
-            },
-            "barrage_count":{
-                "type":"integer"
-            },
-            "is_recommend":{
-                "type":"boolean"
-            },
-            "is_new":{
-                "type":"boolean"
-            },
-            "is_hot":{
-                "type":"boolean"
-            },
-            "is_visible":{
-                "type":"boolean"
-            },
-            "score":{
-                "type":"float"
-            },
-            "type":{
-                "type":"text"
-            },
-            "name":{
-                "type":"text",
-                "analyzer":"ik_max_word"
-            },
-            "introduce":{
-                "type":"text",
-                "analyzer":"ik_max_word"
-            }
-        }
-    }
-}`
-
-	return videoMapping
 }

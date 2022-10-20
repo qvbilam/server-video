@@ -2,7 +2,6 @@ package business
 
 import (
 	"context"
-	"fmt"
 	"github.com/olivere/elastic/v7"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -61,6 +60,34 @@ type DramaBusiness struct {
 	Sort string
 }
 
+func (b *DramaBusiness) Create() (*model.Drama, error) {
+	entity := &model.Drama{
+		UserModel:      model.UserModel{UserID: b.UserId},
+		Type:           b.Type,
+		CategoryId:     b.CategoryId,
+		Name:           b.Name,
+		Introduce:      b.Introduce,
+		Icon:           b.Icon,
+		HorizontalIcon: b.HorizontalIcon,
+		IsNew:          *b.IsNew,
+		IsHot:          *b.IsHot,
+		IsEnd:          *b.IsNew,
+	}
+	if b.IsVisible != nil {
+		entity.Visible = model.Visible{IsVisible: *b.IsVisible}
+	}
+
+	tx := global.DB.Begin()
+	res := tx.Save(entity)
+	if res.RowsAffected == 0 || res.Error != nil {
+		tx.Rollback()
+		return nil, status.Errorf(codes.Internal, "创建失败")
+	}
+
+	tx.Commit()
+	return entity, nil
+}
+
 func (b *DramaBusiness) Update() (int64, error) {
 	entity := model.Drama{}
 	condition := model.Drama{}
@@ -70,7 +97,11 @@ func (b *DramaBusiness) Update() (int64, error) {
 	if condition.IsEmpty() {
 		return 0, status.Errorf(codes.InvalidArgument, "参数错误")
 	}
-	if res := global.DB.Clauses(clause.Locking{Strength: "UPDATE"}).Where(condition).First(&entity); res.RowsAffected == 0 {
+
+	tx := global.DB.Begin()
+
+	if res := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where(condition).First(&entity); res.RowsAffected == 0 {
+		tx.Rollback()
 		return 0, status.Errorf(codes.NotFound, "剧集不存在")
 	}
 	if b.Name != "" {
@@ -82,11 +113,34 @@ func (b *DramaBusiness) Update() (int64, error) {
 	if b.IsNew != nil {
 		entity.IsNew = *b.IsNew
 	}
-	if b.IsHot != nil {
-		entity.IsHot = *b.IsHot
+	if b.IsVisible != nil {
+		entity.IsVisible = *b.IsVisible
 	}
 
-	res := global.DB.Save(&entity)
+	res := tx.Save(&entity)
+	if res.RowsAffected == 0 || res.Error != nil {
+		tx.Rollback()
+		return 0, status.Errorf(codes.NotFound, "更新失败")
+	}
+	tx.Commit()
+	return res.RowsAffected, nil
+}
+
+func (b *DramaBusiness) Delete() (int64, error) {
+	if b.Id <= 0 {
+		return 0, status.Errorf(codes.InvalidArgument, "参数错误")
+	}
+	tx := global.DB.Begin()
+	res := tx.Where(model.Drama{IDModel: model.IDModel{ID: b.Id}}).Delete(model.Drama{})
+	if res.RowsAffected == 0 {
+		tx.Rollback()
+		return 0, status.Errorf(codes.NotFound, "记录不存在")
+	}
+	if res.Error != nil {
+		tx.Rollback()
+		return 0, status.Errorf(codes.Internal, "更新失败")
+	}
+	tx.Commit()
 	return res.RowsAffected, nil
 }
 
@@ -105,15 +159,48 @@ func (b *DramaBusiness) List() (*DramaListResponse, error) {
 	res.Total = result.TotalHits()
 
 	var dramaIds []int64
-	for _, hit := range result.Hits.Hits {
-		dramaId, _ := strconv.Atoi(hit.Id)
-		dramaIds = append(dramaIds, int64(dramaId))
-		fmt.Println("================")
-		fmt.Println(hit.Highlight)
+	type highlightMapStruct struct {
+		Name      *string
+		Introduce *string
 	}
-	// todo 返回数据库查询， 替换高亮字段
+	highlightMap := make(map[int64]*highlightMapStruct)
+	for _, hit := range result.Hits.Hits {
+		idI, _ := strconv.Atoi(hit.Id)
+		id := int64(idI)
+		dramaIds = append(dramaIds, id)
+		highlight := hit.Highlight
+		highlightStruct := highlightMapStruct{}
+		if highlight != nil {
+			if highlight["name"] != nil {
+				name := &hit.Highlight["name"][0]
+				highlightStruct.Name = name
+			}
+			if highlight["introduce"] != nil {
+				introduce := &hit.Highlight["introduce"][0]
+				highlightStruct.Introduce = introduce
+			}
+		}
+		highlightMap[id] = &highlightStruct
+	}
 
-	return nil, nil
+	var dramas []model.Drama
+	if r := global.DB.Where("id IN ?", dramaIds).Find(&dramas); r.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	var entityDramas []model.Drama
+	for _, d := range dramas {
+		if highlightMap[d.ID] != nil {
+			if highlightMap[d.ID].Name != nil {
+				d.Name = *highlightMap[d.ID].Name
+			}
+			if highlightMap[d.ID].Introduce != nil {
+				d.Introduce = *highlightMap[d.ID].Introduce
+			}
+		}
+		entityDramas = append(entityDramas, d)
+	}
+	res.Dramas = &entityDramas
+	return res, nil
 }
 
 func (b *DramaBusiness) ElasticSearch() (*elastic.SearchResult, error) {

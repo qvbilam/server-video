@@ -14,33 +14,99 @@ type DramaServer struct {
 }
 
 func (s *DramaServer) Create(ctx context.Context, request *proto.UpdateDramaRequest) (*proto.DramaResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
+	userId := 1 // todo 获取用户id
+	b := business.DramaBusiness{
+		Id:             request.Id,
+		UserId:         int64(userId),
+		CategoryId:     request.CategoryId,
+		Name:           request.Name,
+		Introduce:      request.Introduce,
+		Icon:           request.Icon,
+		HorizontalIcon: request.HorizontalIcon,
+		TotalCount:     request.TotalCount,
+		IsRecommend:    &request.IsRecommend,
+		IsNew:          &request.IsNew,
+		IsHot:          &request.IsHot,
+		IsVisible:      &request.IsVisible,
+	}
+
+	entity, err := b.Create()
+	if err != nil {
+		return nil, err
+	}
+
+	return &proto.DramaResponse{Id: entity.ID}, nil
 }
 
 func (s *DramaServer) Update(ctx context.Context, request *proto.UpdateDramaRequest) (*emptypb.Empty, error) {
-	b := business.DramaBusiness{}
-	b.Id = 2
-	isNew := true
-	b.IsNew = &isNew
-	_, _ = b.Update()
+	userId := 1 // todo 获取用户id
+	b := business.DramaBusiness{
+		Id:             request.Id,
+		UserId:         int64(userId),
+		CategoryId:     request.CategoryId,
+		Name:           request.Name,
+		Introduce:      request.Introduce,
+		Icon:           request.Icon,
+		HorizontalIcon: request.HorizontalIcon,
+		TotalCount:     request.TotalCount,
+		IsRecommend:    &request.IsRecommend,
+		IsNew:          &request.IsNew,
+		IsHot:          &request.IsHot,
+		IsVisible:      &request.IsVisible,
+	}
+
+	_, err := b.Update()
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
 	return &emptypb.Empty{}, nil
 }
 
 func (s *DramaServer) Delete(ctx context.Context, request *proto.UpdateDramaRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "")
+	b := business.DramaBusiness{Id: request.Id}
+	_, err := b.Delete()
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest) (*proto.DramaListResponse, error) {
-	b := business.DramaBusiness{}
-	b.Keyword = request.Keyword
-	_, err := b.List()
+	b := business.DramaBusiness{
+		Keyword: request.Keyword,
+		Sort:    request.Sort,
+	}
+	if request.Page != nil {
+		b.Page = request.Page.Page
+		b.PerPage = request.Page.PerPage
+	}
+
+	model, err := b.List()
 	if err != nil {
 		return nil, err
 	}
-	return &proto.DramaListResponse{
-		Total: 0,
-		Drama: nil,
-	}, nil
+
+	res := &proto.DramaListResponse{}
+	res.Total = model.Total
+	for _, m := range *model.Dramas {
+		res.Drama = append(res.Drama, &proto.DramaResponse{
+			Id:             m.ID,
+			Name:           m.Name,
+			Introduce:      m.Introduce,
+			Icon:           m.Icon,
+			HorizontalIcon: m.HorizontalIcon,
+			Score:          float32(m.Score),
+			EpisodeCount:   m.EpisodeCount,
+			FavoriteCount:  m.FavoriteCount,
+			LikeCount:      m.LikeCount,
+			PlayCount:      m.PlayCount,
+			BarrageCount:   m.BarrageCount,
+			IsNew:          m.IsNew,
+			IsHot:          m.IsHot,
+			IsEnd:          m.IsEnd,
+		})
+	}
+	return res, nil
 }
 
 func (s *DramaServer) GetDetail(ctx context.Context, request *proto.SearchDramaRequest) (*proto.DramaResponse, error) {

@@ -14,7 +14,25 @@ type DramaVideoBusiness struct {
 	Episode *int64
 }
 
-func (b *DramaVideoBusiness) UpdateEpisode(tx *gorm.DB) (int64, error) {
+func (b *DramaVideoBusiness) Create(tx *gorm.DB) error {
+	if b.Episode == nil || b.DramaId == 0 || b.VideoId == 0 {
+		return status.Errorf(codes.InvalidArgument, "缺少参数")
+	}
+	entity := model.DramaVideo{}
+	if res := tx.Where(model.DramaVideo{
+		DramaId: b.DramaId,
+		Episode: *b.Episode,
+		Video:   model.Video{},
+	}).Find(&entity); res.RowsAffected != 0 {
+		return status.Errorf(codes.AlreadyExists, "剧集已存在")
+	}
+	if res := tx.Save(&entity); res.RowsAffected == 0 {
+		return status.Errorf(codes.Internal, "创建失败")
+	}
+	return nil
+}
+
+func (b *DramaVideoBusiness) Update(tx *gorm.DB) (int64, error) {
 	if b.DramaId == 0 {
 		return 0, nil
 	}

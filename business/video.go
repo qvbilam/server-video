@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 	"video/global"
 	"video/model"
+	"video/model/doc"
 )
 
 type VideoListResponse struct {
@@ -35,10 +36,10 @@ type VideoBusiness struct {
 	LikeCount     int64
 	PlayCount     int64
 	BarrageCount  int64
-	IsRecommend   bool
-	IsNew         bool
-	IsHot         bool
-	IsVisible     bool
+	IsRecommend   *bool
+	IsNew         *bool
+	IsHot         *bool
+	IsVisible     *bool
 	// 多层级查找
 	CategoryIds []interface{}
 	// 范围查找
@@ -91,7 +92,7 @@ func (b *VideoBusiness) Create() (int64, error) {
 			VideoId: entity.ID,
 			Episode: b.Episode,
 		}
-		if _, err := dvBis.UpdateEpisode(tx); err != nil {
+		if err := dvBis.Create(tx); err != nil {
 			tx.Rollback()
 			return 0, err
 		}
@@ -126,13 +127,13 @@ func (b *VideoBusiness) Update() (int64, error) {
 		return 0, status.Errorf(codes.Internal, "更新失败")
 	}
 
-	if b.DramaId != 0 {
+	if b.DramaId != 0 && b.Episode != nil {
 		dvBis := DramaVideoBusiness{
 			DramaId: b.DramaId,
 			VideoId: b.Id,
 			Episode: b.Episode,
 		}
-		if _, err := dvBis.UpdateEpisode(tx); err != nil {
+		if _, err := dvBis.Update(tx); err != nil {
 			tx.Rollback()
 			return 0, err
 		}
@@ -197,23 +198,7 @@ func (b *VideoBusiness) List() (*VideoListResponse, error) {
 		}
 	}
 
-	//// 获取 ES query
-	//q := b.GetVideosESQuery()
-	//
-	//// 查询
-	//result, err := global.ES.
-	//	Search().
-	//	Index(model.VideoES{}.GetIndexName()).
-	//	Query(q).
-	//	SortWithInfo(b.GetESVideoSortInfo()).
-	//	From(int(b.Page)).
-	//	Size(int(b.PerPage)).
-	//	Do(context.Background())
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	result, err := b.VideoESSearch()
+	result, err := b.ElasticSearch()
 	if err != nil {
 		return nil, err
 	}
@@ -224,9 +209,9 @@ func (b *VideoBusiness) List() (*VideoListResponse, error) {
 	// 获取视频 ids
 	videoIds := make([]int64, 0)
 	for _, video := range result.Hits.Hits {
-		videoESModel := model.VideoES{}
-		_ = json.Unmarshal(video.Source, &videoESModel)
-		videoIds = append(videoIds, videoESModel.ID)
+		d := doc.Video{}
+		_ = json.Unmarshal(video.Source, &d)
+		videoIds = append(videoIds, d.ID)
 	}
 
 	// 获取视频详细信息 todo 关联分类，区域信息
@@ -243,102 +228,40 @@ func (b *VideoBusiness) List() (*VideoListResponse, error) {
 	}, nil
 }
 
-func (b *VideoBusiness) VideoESSearch() (*elastic.SearchResult, error) {
-	// 获取 ES query
-	q := b.GetVideosESQuery()
-
-	// 查询
-	result, err := global.ES.
-		Search().
-		Index(model.VideoES{}.GetIndexName()).
-		Query(q).
-		SortWithInfo(b.GetESVideoSortInfo()).
-		From(int(b.Page)).
-		Size(int(b.PerPage)).
-		Do(context.Background())
-	if err != nil {
-		return nil, err
+func (b *VideoBusiness) ElasticSearch() (*elastic.SearchResult, error) {
+	d := doc.VideoSearch{
+		Keyword:          b.Keyword,
+		CategoryIds:      b.CategoryIds,
+		UserId:           b.UserId,
+		FavoriteCountMin: b.FavoriteCountMin,
+		FavoriteCountMax: b.FavoriteCountMax,
+		LikeCountMin:     b.LikeCountMin,
+		LikeCountMax:     b.LikeCountMax,
+		PlayCountMin:     b.PlayCountMin,
+		PlayCountMax:     b.PlayCountMax,
+		BarrageCountMin:  b.BarrageCountMin,
+		BarrageCountMax:  b.BarrageCountMax,
+		IsRecommend:      b.IsRecommend,
+		IsNew:            b.IsNew,
+		IsHot:            b.IsHot,
+		IsVisible:        b.IsVisible,
 	}
+	q := d.GetQuery()
+	highlightFields := []string{"name", "introduce"}
+	highlightPreTags := `<font color="#FF0000">`
+	highlightPostTags := `"</font>"`
 
-	return result, nil
-}
+	h := doc.SetHighlight(highlightFields, highlightPreTags, highlightPostTags)
+	s := doc.SetSort(b.Sort)
 
-func (b *VideoBusiness) GetVideosESQuery() *elastic.BoolQuery {
-	// match bool 复合查询
-	q := elastic.NewBoolQuery()
-
-	if b.Keyword != "" { // 搜索 名称, 简介
-		q = q.Must(elastic.NewMultiMatchQuery(b.Keyword, "name", "introduction"))
+	client := global.ES.Search()
+	client.Index(doc.Video{}.GetIndexName())
+	client.Query(q)
+	client.From(int(b.Page))
+	client.Size(int(b.PerPage))
+	client.Highlight(h)
+	if s != nil {
+		client.SortWithInfo(*s)
 	}
-	if b.UserId > 0 { // 搜索用户
-		q = q.Filter(elastic.NewTermQuery("user_id", b.UserId))
-	}
-
-	if b.IsHot { // 搜索热度
-		q = q.Filter(elastic.NewTermQuery("is_hot", b.IsHot))
-	}
-	if b.IsNew { // 搜索新品
-		q = q.Filter(elastic.NewTermQuery("is_new", b.IsNew))
-	}
-	if b.IsVisible { // 搜索展示状态
-		q = q.Filter(elastic.NewTermQuery("is_visible", b.IsNew))
-	}
-
-	// 多级分类查找
-	if len(b.CategoryIds) > 0 {
-		q = q.Filter(elastic.NewTermsQuery("category_id", b.CategoryIds...))
-	}
-
-	// 范围查询
-	if b.FavoriteCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("favorite_count").Gte(b.FavoriteCountMin))
-	}
-
-	if b.FavoriteCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("favorite_count").Lte(b.FavoriteCountMax))
-	}
-
-	if b.LikeCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("like_count").Gte(b.LikeCountMin))
-	}
-
-	if b.LikeCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("like_count").Lte(b.LikeCountMax))
-	}
-
-	if b.PlayCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("play_count").Gte(b.PlayCountMin))
-	}
-
-	if b.PlayCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("play_count").Lte(b.PlayCountMax))
-	}
-
-	if b.BarrageCountMin > 0 {
-		q = q.Filter(elastic.NewRangeQuery("barrage_count").Gte(b.BarrageCountMin))
-	}
-
-	if b.BarrageCountMax > 0 {
-		q = q.Filter(elastic.NewRangeQuery("barrage_count").Lte(b.BarrageCountMax))
-	}
-
-	return q
-}
-
-func (b *VideoBusiness) GetESVideoSortInfo() elastic.SortInfo {
-	sort := elastic.SortInfo{
-		Field:     "play_count",
-		Ascending: false,
-	}
-
-	if b.Sort != "" {
-		if string(b.Sort[0]) == "-" {
-			sort.Field = b.Sort[0:]
-		} else {
-			sort.Field = b.Sort
-			sort.Ascending = true
-		}
-	}
-
-	return sort
+	return client.Do(context.Background())
 }

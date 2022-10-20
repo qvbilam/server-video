@@ -1,33 +1,20 @@
 package doc
 
-import (
-	"github.com/olivere/elastic/v7"
-)
+import "github.com/olivere/elastic/v7"
 
-type DramaVideo struct {
-	ID        int64  `json:"id"`
-	Name      string `json:"name"`
-	Introduce string `json:"introduce"`
-	Episode   int64  `json:"episode"`
-}
-
-type UpdateDrama struct {
+type Video struct {
 	ID            int64 `json:"id"`
 	UserID        int64 `json:"user_id"`
-	RegionID      int64 `json:"region_id"`
 	CategoryID    int64 `json:"category_id"`
-	EpisodeCount  int64 `json:"episode_count"`
 	FavoriteCount int64 `json:"favorite_count"`
 	LikeCount     int64 `json:"like_count"`
 	PlayCount     int64 `json:"play_count"`
 	BarrageCount  int64 `json:"barrage_count"`
-	Year          int64 `json:"year"`
-	Quarter       int64 `json:"quarter"`
 
-	IsNew     bool `json:"is_new"`
-	IsHot     bool `json:"is_hot"`
-	IsEnd     bool `json:"is_end"`
-	IsVisible bool `json:"isVisible"`
+	IsRecommend bool `json:"is_recommend"`
+	IsNew       bool `json:"is_new"`
+	IsHot       bool `json:"is_hot"`
+	IsVisible   bool `json:"isVisible"`
 
 	Score float64 `json:"score"`
 
@@ -36,33 +23,38 @@ type UpdateDrama struct {
 	Introduce string `json:"introduce"`
 }
 
-type UpdateDramaVideos struct {
-	Videos []DramaVideo `json:"videos"`
+type VideoSearch struct {
+	Keyword string // 搜索
+	// 多层级查找
+	CategoryIds      []interface{}
+	UserId           int64
+	FavoriteCountMin int64
+	FavoriteCountMax int64
+	LikeCountMin     int64
+	LikeCountMax     int64
+	PlayCountMin     int64
+	PlayCountMax     int64
+	BarrageCountMin  int64
+	BarrageCountMax  int64
+
+	IsRecommend *bool
+	IsNew       *bool
+	IsHot       *bool
+	IsVisible   *bool
 }
 
-type Drama struct {
-	UpdateDrama
-	UpdateDramaVideos
+func (Video) GetIndexName() string {
+	return "video"
 }
 
-func (Drama) GetIndexName() string {
-	return "drama"
-}
-
-func (Drama) GetMapping() string {
-	dramaMapping := `{
+func (Video) GetMapping() string {
+	videoMapping := `{
     "mappings":{
         "properties":{
             "user_id":{
                 "type":"integer"
             },
-            "region_id":{
-                "type":"integer"
-            },
             "category_id":{
-                "type":"integer"
-            },
-            "episode_count":{
                 "type":"integer"
             },
             "favorite_count":{
@@ -77,13 +69,13 @@ func (Drama) GetMapping() string {
             "barrage_count":{
                 "type":"integer"
             },
+            "is_recommend":{
+                "type":"boolean"
+            },
             "is_new":{
                 "type":"boolean"
             },
             "is_hot":{
-                "type":"boolean"
-            },
-            "is_end":{
                 "type":"boolean"
             },
             "is_visible":{
@@ -102,61 +94,21 @@ func (Drama) GetMapping() string {
             "introduce":{
                 "type":"text",
                 "analyzer":"ik_max_word"
-            },
-            "videos":{
-                "properties":{
-                    "id": {
-                        "type":"integer"
-                    },
-                    "name": {
-                        "type":"text",
-                        "analyzer":"ik_max_word"
-                    },
-                    "introduce": {
-                        "type":"text",
-                        "analyzer":"ik_max_word"
-                    },
-                    "episode": {
-                        "type":"integer"
-                    }
-                }
             }
         }
     }
 }`
 
-	return dramaMapping
+	return videoMapping
 }
 
-type DramaSearch struct {
-	Keyword          string // 搜索
-	Type             string // 类型搜索
-	UserId           int64  // 用户id
-	IsHot            *bool  // 是否热度
-	IsNew            *bool  // 是否最新
-	IsVisible        *bool  // 是否展示
-	FavoriteCountMin int64  // 收藏数量
-	FavoriteCountMax int64  //  收藏数量
-	LikeCountMin     int64
-	LikeCountMax     int64
-	PlayCountMin     int64
-	PlayCountMax     int64
-	BarrageCountMin  int64
-	BarrageCountMax  int64
-}
-
-func (s *DramaSearch) GetQuery() *elastic.BoolQuery {
+func (s *VideoSearch) GetQuery() *elastic.BoolQuery {
 	// match bool 复合查询
 	q := elastic.NewBoolQuery()
 
 	if s.Keyword != "" { // 搜索 名称, 简介
-		q = q.Must(elastic.NewMultiMatchQuery(s.Keyword, "name", "introduce", "videos.name", "videos.introduce"))
+		q = q.Must(elastic.NewMultiMatchQuery(s.Keyword, "name", "introduction"))
 	}
-
-	if s.Type != "" { // 搜索类型
-		q = q.Filter(elastic.NewTermQuery("type", s.Type))
-	}
-
 	if s.UserId > 0 { // 搜索用户
 		q = q.Filter(elastic.NewTermQuery("user_id", s.UserId))
 	}
@@ -169,6 +121,11 @@ func (s *DramaSearch) GetQuery() *elastic.BoolQuery {
 	}
 	if s.IsVisible != nil { // 搜索展示状态
 		q = q.Filter(elastic.NewTermQuery("is_visible", s.IsNew))
+	}
+
+	// 多级分类查找
+	if len(s.CategoryIds) > 0 {
+		q = q.Filter(elastic.NewTermsQuery("category_id", s.CategoryIds...))
 	}
 
 	// 范围查询

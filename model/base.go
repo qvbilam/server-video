@@ -51,3 +51,8 @@ func Paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 		return db.Offset(offset).Limit(pageSize)
 	}
 }
+
+func Update(tx *gorm.DB, model interface{}, id int64, values interface{}) int64 {
+	res := tx.Model(model).Where(IDModel{ID: id}).Updates(values)
+	return res.RowsAffected
+}
