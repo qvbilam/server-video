@@ -23,6 +23,9 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 	if _, err := categoryBusiness.Exists(); err != nil {
 		//return nil, err
 	}
+	if request.FileId == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "缺少必要参数")
+	}
 
 	videoBusiness := business.VideoBusiness{
 		DramaId:        request.DramaId,

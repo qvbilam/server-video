@@ -12,7 +12,7 @@ import (
 // Drama 视频剧集
 type Drama struct {
 	IDModel
-	DramaVideos []DramaVideo
+	DramaVideos *[]DramaVideo
 	UserModel
 	Type           string  `gorm:"type:varchar(255); not null default '';comment:类型;anime:动漫,movie:影视"`
 	RegionId       int64   `gorm:"type:int not null default 0;comment:区域id;index:idx_region_id"`

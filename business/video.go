@@ -104,17 +104,14 @@ func (b *VideoBusiness) Create() (int64, error) {
 
 func (b *VideoBusiness) Update() (int64, error) {
 	tx := global.DB.Begin()
-	videoEntity := model.Video{}
-	if res := global.DB.First(&videoEntity, b.Id); res.RowsAffected == 0 {
+	videoEntity := &model.Video{}
+	if res := global.DB.First(videoEntity, b.Id); res.RowsAffected == 0 {
 		tx.Rollback()
 		return 0, status.Errorf(codes.NotFound, "视频不存在")
 	}
-	videoEntity.CategoryId = b.CategoryId
-	videoEntity.Name = b.Name
-	videoEntity.Introduce = b.Introduce
-	videoEntity.Icon = b.Icon
-	videoEntity.HorizontalIcon = b.HorizontalIcon
-	videoEntity.Score = b.Score
+
+	// business 参数转 model
+	b.ToUpdateModel(videoEntity)
 
 	res := global.DB.Save(&videoEntity)
 	if res.Error != nil {
@@ -226,6 +223,37 @@ func (b *VideoBusiness) List() (*VideoListResponse, error) {
 		Total:  total,
 		Videos: videos,
 	}, nil
+}
+
+func (b *VideoBusiness) ToUpdateModel(video *model.Video) {
+	if b.Name != "" {
+		video.Name = b.Name
+	}
+	if b.Icon != "" {
+		video.Icon = b.Icon
+	}
+	if b.Introduce != "" {
+		video.Introduce = b.Introduce
+	}
+	if b.HorizontalIcon != "" {
+		video.HorizontalIcon = b.HorizontalIcon
+	}
+
+	if b.CategoryId != 0 {
+		video.CategoryId = b.CategoryId
+	}
+
+	if b.FileId != 0 {
+		video.FileId = b.FileId
+	}
+
+	if b.Score != 0 {
+		video.Score = b.Score
+	}
+
+	if b.IsVisible != nil {
+		video.IsVisible = *b.IsVisible
+	}
 }
 
 func (b *VideoBusiness) ElasticSearch() (*elastic.SearchResult, error) {

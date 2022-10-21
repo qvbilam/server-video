@@ -4,6 +4,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"video/model"
 )
 
@@ -35,7 +36,8 @@ func (b *DramaVideoBusiness) Create(tx *gorm.DB) error {
 		Episode: *b.Episode,
 	}
 
-	if res := tx.Create(&entity); res.RowsAffected == 0 {
+	// Skip all associations when creating a DramaVideo
+	if res := tx.Omit(clause.Associations).Create(&entity); res.RowsAffected == 0 || res.Error != nil {
 		return status.Errorf(codes.Internal, "创建失败")
 	}
 	return nil
