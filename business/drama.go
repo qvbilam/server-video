@@ -184,7 +184,7 @@ func (b *DramaBusiness) List() (*DramaListResponse, error) {
 	}
 
 	var dramas []model.Drama
-	if r := global.DB.Where("id IN ?", dramaIds).Find(&dramas); r.RowsAffected == 0 {
+	if r := global.DB.Where("id IN ?", dramaIds).Preload("DramaVideos.Video").Find(&dramas); r.RowsAffected == 0 {
 		return nil, status.Errorf(codes.NotFound, "")
 	}
 	var entityDramas []model.Drama
