@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -89,6 +90,19 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 	res := &proto.DramaListResponse{}
 	res.Total = model.Total
 	for _, m := range *model.Dramas {
+		var episodes []*proto.EpisodeResponse
+		for _, e := range *m.DramaVideos {
+			episodes = append(episodes, &proto.EpisodeResponse{
+				Id:      e.ID,
+				Episode: e.Episode,
+				Video: &proto.VideoResponse{
+					Id:        e.Video.ID,
+					Name:      e.Video.Name,
+					Introduce: e.Video.Introduce,
+				},
+			})
+		}
+
 		res.Drama = append(res.Drama, &proto.DramaResponse{
 			Id:             m.ID,
 			Name:           m.Name,
@@ -104,8 +118,11 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 			IsNew:          m.IsNew,
 			IsHot:          m.IsHot,
 			IsEnd:          m.IsEnd,
+			Episode:        episodes,
 		})
 	}
+
+	fmt.Printf("tmd: %+v\n", res.Drama)
 	return res, nil
 }
 
