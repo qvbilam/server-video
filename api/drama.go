@@ -119,6 +119,7 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 			IsHot:          m.IsHot,
 			IsEnd:          m.IsEnd,
 			Episode:        episodes,
+			CreatedTime:    m.CreatedAt.Unix(),
 		})
 	}
 
