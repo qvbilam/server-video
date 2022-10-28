@@ -21,6 +21,7 @@ type DramaBusiness struct {
 	Id             int64
 	UserId         int64
 	CategoryId     int64
+	RegionId       int64
 	Name           string
 	Introduce      string
 	Icon           string
@@ -31,10 +32,10 @@ type DramaBusiness struct {
 
 	// 以下字段只允许通过剧集修改
 	Score         float64
-	FavoriteCount int64
-	LikeCount     int64
-	PlayCount     int64
-	BarrageCount  int64
+	FavoriteCount *int64
+	LikeCount     *int64
+	PlayCount     *int64
+	BarrageCount  *int64
 	IsRecommend   *bool
 	IsNew         *bool
 	IsHot         *bool
@@ -90,6 +91,7 @@ func (b *DramaBusiness) Create() (*model.Drama, error) {
 
 func (b *DramaBusiness) Update() (int64, error) {
 	entity := model.Drama{}
+
 	condition := model.Drama{}
 	if b.Id != 0 {
 		condition.ID = b.Id
@@ -104,17 +106,33 @@ func (b *DramaBusiness) Update() (int64, error) {
 		tx.Rollback()
 		return 0, status.Errorf(codes.NotFound, "剧集不存在")
 	}
+
+	if b.RegionId != 0 {
+		entity.RegionId = b.RegionId
+	}
+	if b.CategoryId != 0 {
+		entity.CategoryId = b.CategoryId
+	}
 	if b.Name != "" {
 		entity.Name = b.Name
 	}
 	if b.Introduce != "" {
 		entity.Introduce = b.Introduce
 	}
+	if b.Icon != "" {
+		entity.Icon = b.Icon
+	}
+	if b.HorizontalIcon != "" {
+		entity.HorizontalIcon = b.HorizontalIcon
+	}
 	if b.IsNew != nil {
 		entity.IsNew = *b.IsNew
 	}
+	if b.PlayCount != nil {
+		entity.IsHot = *b.IsHot
+	}
 	if b.IsVisible != nil {
-		entity.IsVisible = *b.IsVisible
+		entity.Visible = model.Visible{IsVisible: *b.IsVisible}
 	}
 
 	res := tx.Save(&entity)
@@ -207,7 +225,6 @@ func (b *DramaBusiness) ElasticSearch() (*elastic.SearchResult, error) {
 	d := &doc.DramaSearch{
 		Keyword:          b.Keyword,
 		Type:             b.Type,
-		UserId:           b.UserId,
 		IsHot:            b.IsHot,
 		IsNew:            b.IsNew,
 		IsVisible:        b.IsVisible,
@@ -219,6 +236,9 @@ func (b *DramaBusiness) ElasticSearch() (*elastic.SearchResult, error) {
 		PlayCountMax:     b.PlayCountMax,
 		BarrageCountMin:  b.BarrageCountMin,
 		BarrageCountMax:  b.BarrageCountMax,
+	}
+	if b.UserId != 0 {
+		d.UserId = b.UserId
 	}
 
 	q := d.GetQuery()

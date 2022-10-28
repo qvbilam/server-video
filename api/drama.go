@@ -40,10 +40,9 @@ func (s *DramaServer) Create(ctx context.Context, request *proto.UpdateDramaRequ
 }
 
 func (s *DramaServer) Update(ctx context.Context, request *proto.UpdateDramaRequest) (*emptypb.Empty, error) {
-	userId := 1 // todo 获取用户id
+	//userId := 1 // todo 获取用户id
 	b := business.DramaBusiness{
 		Id:             request.Id,
-		UserId:         int64(userId),
 		CategoryId:     request.CategoryId,
 		Name:           request.Name,
 		Introduce:      request.Introduce,
