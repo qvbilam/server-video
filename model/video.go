@@ -12,20 +12,20 @@ import (
 type Video struct {
 	IDModel
 	UserModel
-	FileId         int64   `gorm:"type:int(11); not null default 0';comment:视频文件id"`
-	CategoryId     int64   `gorm:"type:int not null default 0;comment:分类id;index:idx_category_id"`
-	Name           string  `gorm:"type:varchar(255); not null default '';comment:名称"`
-	Introduce      string  `gorm:"type:varchar(2048); not null default '';comment:简介"`
-	Icon           string  `gorm:"type:varchar(255); not null default '';comment:横版图标"`
-	HorizontalIcon string  `gorm:"type:varchar(255); not null default '';comment:纵版图标"`
-	Score          float64 `gorm:"type:decimal(1,1);not null default 0;comment:评分"`
-	FavoriteCount  int64   `gorm:"type:int; not null default 0;comment:收藏数量"`
-	LikeCount      int64   `gorm:"type:int; not null default 0;comment:点赞数量"`
-	PlayCount      int64   `gorm:"type:int; not null default 0;comment:播放数量"`
-	BarrageCount   int64   `gorm:"type:int; not null default 0;comment:弹幕数量"`
-	IsRecommend    bool    `gorm:"type:tinyint(1); not null default 0;comment:是否推荐"`
-	IsNew          bool    `gorm:"type:tinyint(1); not null default 0;comment:是否最新"`
-	IsHot          bool    `gorm:"type:tinyint(1); not null default 0;comment:是否热播"`
+	FileId          int64   `gorm:"type:int(11); not null default 0';comment:视频文件id"`
+	CategoryId      int64   `gorm:"type:int not null default 0;comment:分类id;index:idx_category_id"`
+	Name            string  `gorm:"type:varchar(255); not null default '';comment:名称"`
+	Introduce       string  `gorm:"type:varchar(2048); not null default '';comment:简介"`
+	Cover           string  `gorm:"type:varchar(255); not null default '';comment:横版封面"`
+	HorizontalCover string  `gorm:"type:varchar(255); not null default '';comment:纵版封面"`
+	Score           float64 `gorm:"type:decimal(1,1);not null default 0;comment:评分"`
+	FavoriteCount   int64   `gorm:"type:int; not null default 0;comment:收藏数量"`
+	LikeCount       int64   `gorm:"type:int; not null default 0;comment:点赞数量"`
+	PlayCount       int64   `gorm:"type:int; not null default 0;comment:播放数量"`
+	BarrageCount    int64   `gorm:"type:int; not null default 0;comment:弹幕数量"`
+	IsRecommend     bool    `gorm:"type:tinyint(1); not null default 0;comment:是否推荐"`
+	IsNew           bool    `gorm:"type:tinyint(1); not null default 0;comment:是否最新"`
+	IsHot           bool    `gorm:"type:tinyint(1); not null default 0;comment:是否热播"`
 	Visible
 	DateModel
 	DeletedModel

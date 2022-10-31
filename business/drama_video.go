@@ -20,14 +20,8 @@ func (b *DramaVideoBusiness) Create(tx *gorm.DB) error {
 		return status.Errorf(codes.InvalidArgument, "缺少参数")
 	}
 
-	condition := model.DramaVideo{
-		DramaId: b.DramaId,
-		Episode: *b.Episode,
-	}
-
-	exists := model.DramaVideo{}
-	if res := tx.Where(condition).First(&exists); res.RowsAffected != 0 {
-		return status.Errorf(codes.AlreadyExists, "剧集已存在")
+	if err := b.Exists(tx); err != nil {
+		return err
 	}
 
 	entity := model.DramaVideo{
@@ -52,22 +46,18 @@ func (b *DramaVideoBusiness) Update(tx *gorm.DB) (int64, error) {
 		return 0, status.Errorf(codes.NotFound, "剧集不存在")
 	}
 
-	// 设置查询条件
-	episodeCondition := model.DramaVideo{}
-	episodeCondition.DramaId = b.DramaId
-	if b.Episode != nil {
-		episodeCondition.Episode = *b.Episode
-	}
-	if b.VideoId != 0 {
-		episodeCondition.VideoId = b.VideoId
+	// 验证剧是否有重复集
+	if err := b.Exists(tx); err != nil {
+		return 0, err
 	}
 
-	// 更新剧集
+	// 更新剧集(查询剧是否包含视频
 	episodeEntity := model.DramaVideo{}
-	res := tx.Where(episodeCondition).First(&episodeEntity)
+	res := tx.Where(model.DramaVideo{DramaId: b.DramaId, VideoId: b.VideoId}).First(&episodeEntity)
 	if res.RowsAffected == 0 {
-		tx.Create(&episodeEntity)
+		tx.Create(&model.DramaVideo{DramaId: b.DramaId, VideoId: b.VideoId, Episode: *b.Episode})
 	} else {
+		episodeEntity.Episode = *b.Episode
 		tx.Save(&episodeEntity)
 	}
 
@@ -82,4 +72,21 @@ func (b *DramaVideoBusiness) Update(tx *gorm.DB) (int64, error) {
 	}
 
 	return res.RowsAffected, nil
+}
+
+func (b *DramaVideoBusiness) Exists(tx *gorm.DB) error {
+	condition := model.DramaVideo{
+		DramaId: b.DramaId,
+		Episode: *b.Episode,
+	}
+
+	exists := model.DramaVideo{}
+	res := tx.Where(condition).First(&exists)
+	if b.Id != 0 {
+		if exists.ID != b.Id && res.RowsAffected != 0 {
+			return status.Errorf(codes.AlreadyExists, "剧集已存在")
+		}
+	}
+
+	return nil
 }

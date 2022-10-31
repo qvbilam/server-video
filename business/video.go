@@ -17,16 +17,16 @@ type VideoListResponse struct {
 }
 
 type VideoBusiness struct {
-	Id             int64
-	FileId         int64
-	UserId         int64
-	CategoryId     int64
-	Name           string
-	Introduce      string
-	Icon           string
-	HorizontalIcon string
-	TotalCount     int64
-	Keyword        string
+	Id              int64
+	FileId          int64
+	UserId          int64
+	CategoryId      int64
+	Name            string
+	Introduce       string
+	Cover           string
+	HorizontalCover string
+	TotalCount      int64
+	Keyword         string
 	// 其他表需要字段
 	DramaId int64
 	Episode *int64
@@ -67,12 +67,12 @@ func (b *VideoBusiness) Create() (int64, error) {
 		UserModel: model.UserModel{
 			UserID: b.UserId,
 		},
-		CategoryId:     b.CategoryId,
-		Name:           b.Name,
-		Introduce:      b.Introduce,
-		Icon:           b.Icon,
-		HorizontalIcon: b.HorizontalIcon,
-		Visible:        model.Visible{},
+		CategoryId:      b.CategoryId,
+		Name:            b.Name,
+		Introduce:       b.Introduce,
+		Cover:           b.Cover,
+		HorizontalCover: b.HorizontalCover,
+		Visible:         model.Visible{},
 	}
 
 	cvRes := tx.Create(&entity) // 同时会在model.After 写入es
@@ -125,6 +125,7 @@ func (b *VideoBusiness) Update() (int64, error) {
 	}
 
 	if b.DramaId != 0 && b.Episode != nil {
+		// 验证分集是否存在
 		dvBis := DramaVideoBusiness{
 			DramaId: b.DramaId,
 			VideoId: b.Id,
@@ -229,14 +230,14 @@ func (b *VideoBusiness) ToUpdateModel(video *model.Video) {
 	if b.Name != "" {
 		video.Name = b.Name
 	}
-	if b.Icon != "" {
-		video.Icon = b.Icon
+	if b.Cover != "" {
+		video.Cover = b.Cover
 	}
 	if b.Introduce != "" {
 		video.Introduce = b.Introduce
 	}
-	if b.HorizontalIcon != "" {
-		video.HorizontalIcon = b.HorizontalIcon
+	if b.HorizontalCover != "" {
+		video.HorizontalCover = b.HorizontalCover
 	}
 
 	if b.CategoryId != 0 {

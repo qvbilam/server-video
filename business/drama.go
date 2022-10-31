@@ -18,16 +18,16 @@ type DramaListResponse struct {
 }
 
 type DramaBusiness struct {
-	Id             int64
-	UserId         int64
-	CategoryId     int64
-	RegionId       int64
-	Name           string
-	Introduce      string
-	Icon           string
-	HorizontalIcon string
-	TotalCount     int64
-	Keyword        string
+	Id              int64
+	UserId          int64
+	CategoryId      int64
+	RegionId        int64
+	Name            string
+	Introduce       string
+	Cover           string
+	HorizontalCover string
+	TotalCount      int64
+	Keyword         string
 
 	// 以下字段只允许通过剧集修改
 	Score         float64
@@ -62,16 +62,16 @@ type DramaBusiness struct {
 
 func (b *DramaBusiness) Create() (*model.Drama, error) {
 	entity := &model.Drama{
-		UserModel:      model.UserModel{UserID: b.UserId},
-		CategoryId:     b.CategoryId,
-		RegionId:       b.RegionId,
-		Name:           b.Name,
-		Introduce:      b.Introduce,
-		Icon:           b.Icon,
-		HorizontalIcon: b.HorizontalIcon,
-		IsNew:          *b.IsNew,
-		IsHot:          *b.IsHot,
-		IsEnd:          *b.IsNew,
+		UserModel:       model.UserModel{UserID: b.UserId},
+		CategoryId:      b.CategoryId,
+		RegionId:        b.RegionId,
+		Name:            b.Name,
+		Introduce:       b.Introduce,
+		Cover:           b.Cover,
+		HorizontalCover: b.HorizontalCover,
+		IsNew:           *b.IsNew,
+		IsHot:           *b.IsHot,
+		IsEnd:           *b.IsNew,
 	}
 	if b.IsVisible != nil {
 		entity.Visible = model.Visible{IsVisible: *b.IsVisible}
@@ -118,11 +118,11 @@ func (b *DramaBusiness) Update() (int64, error) {
 	if b.Introduce != "" {
 		entity.Introduce = b.Introduce
 	}
-	if b.Icon != "" {
-		entity.Icon = b.Icon
+	if b.Cover != "" {
+		entity.Cover = b.Cover
 	}
-	if b.HorizontalIcon != "" {
-		entity.HorizontalIcon = b.HorizontalIcon
+	if b.HorizontalCover != "" {
+		entity.HorizontalCover = b.HorizontalCover
 	}
 	if b.IsNew != nil {
 		entity.IsNew = *b.IsNew

@@ -28,15 +28,15 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 	}
 
 	videoBusiness := business.VideoBusiness{
-		DramaId:        request.DramaId,
-		Episode:        &request.Episode,
-		FileId:         request.FileId,
-		UserId:         request.UserId,
-		CategoryId:     request.CategoryId,
-		Name:           request.Name,
-		Introduce:      request.Introduce,
-		Icon:           request.Icon,
-		HorizontalIcon: request.HorizontalIcon,
+		DramaId:         request.DramaId,
+		Episode:         &request.Episode,
+		FileId:          request.FileId,
+		UserId:          request.UserId,
+		CategoryId:      request.CategoryId,
+		Name:            request.Name,
+		Introduce:       request.Introduce,
+		Cover:           request.Cover,
+		HorizontalCover: request.HorizontalCover,
 	}
 	videoId, err := videoBusiness.Create()
 	if err != nil {
@@ -48,21 +48,21 @@ func (s *VideoServer) Create(ctx context.Context, request *proto.UpdateVideoRequ
 
 func (s *VideoServer) Update(ctx context.Context, request *proto.UpdateVideoRequest) (*emptypb.Empty, error) {
 	videoBusiness := business.VideoBusiness{
-		DramaId:        request.DramaId,
-		Episode:        &request.Episode,
-		Id:             request.Id,
-		UserId:         request.UserId,
-		FileId:         request.FileId,
-		CategoryId:     request.CategoryId,
-		Name:           request.Name,
-		Introduce:      request.Introduce,
-		Icon:           request.Icon,
-		HorizontalIcon: request.HorizontalIcon,
-		Score:          float64(request.Score),
+		DramaId:         request.DramaId,
+		Episode:         &request.Episode,
+		Id:              request.Id,
+		UserId:          request.UserId,
+		FileId:          request.FileId,
+		CategoryId:      request.CategoryId,
+		Name:            request.Name,
+		Introduce:       request.Introduce,
+		Cover:           request.Cover,
+		HorizontalCover: request.HorizontalCover,
+		Score:           float64(request.Score),
 	}
 	_, err := videoBusiness.Update()
 	if err != nil {
-		return nil, status.Errorf(codes.Unimplemented, err.Error())
+		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
@@ -161,17 +161,17 @@ func modelToResponse(video model.Video) proto.VideoResponse {
 		Category: &proto.CategoryResponse{
 			Id: video.CategoryId,
 		},
-		Name:           video.Name,
-		Introduce:      video.Introduce,
-		Icon:           video.Icon,
-		HorizontalIcon: video.HorizontalIcon,
-		Score:          float32(video.Score),
-		FavoriteCount:  video.FavoriteCount,
-		LikeCount:      video.LikeCount,
-		PlayCount:      video.PlayCount,
-		BarrageCount:   video.BarrageCount,
-		IsRecommend:    video.IsRecommend,
-		IsHot:          video.IsHot,
-		CreatedTime:    video.CreatedAt.Unix(),
+		Name:            video.Name,
+		Introduce:       video.Introduce,
+		Cover:           video.Cover,
+		HorizontalCover: video.HorizontalCover,
+		Score:           float32(video.Score),
+		FavoriteCount:   video.FavoriteCount,
+		LikeCount:       video.LikeCount,
+		PlayCount:       video.PlayCount,
+		BarrageCount:    video.BarrageCount,
+		IsRecommend:     video.IsRecommend,
+		IsHot:           video.IsHot,
+		CreatedTime:     video.CreatedAt.Unix(),
 	}
 }
