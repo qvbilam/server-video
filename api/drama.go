@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -20,6 +19,7 @@ func (s *DramaServer) Create(ctx context.Context, request *proto.UpdateDramaRequ
 		Id:             request.Id,
 		UserId:         int64(userId),
 		CategoryId:     request.CategoryId,
+		RegionId:       request.RegionId,
 		Name:           request.Name,
 		Introduce:      request.Introduce,
 		Icon:           request.Icon,
@@ -122,7 +122,6 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 		})
 	}
 
-	fmt.Printf("tmd: %+v\n", res.Drama)
 	return res, nil
 }
 

@@ -28,7 +28,6 @@ type DramaBusiness struct {
 	HorizontalIcon string
 	TotalCount     int64
 	Keyword        string
-	Type           string
 
 	// 以下字段只允许通过剧集修改
 	Score         float64
@@ -64,8 +63,8 @@ type DramaBusiness struct {
 func (b *DramaBusiness) Create() (*model.Drama, error) {
 	entity := &model.Drama{
 		UserModel:      model.UserModel{UserID: b.UserId},
-		Type:           b.Type,
 		CategoryId:     b.CategoryId,
+		RegionId:       b.RegionId,
 		Name:           b.Name,
 		Introduce:      b.Introduce,
 		Icon:           b.Icon,
@@ -163,6 +162,9 @@ func (b *DramaBusiness) Delete() (int64, error) {
 }
 
 func (b *DramaBusiness) List() (*DramaListResponse, error) {
+	if b.Page <= 0 {
+		b.Page = 1
+	}
 	if b.PerPage <= 0 {
 		b.PerPage = 10
 	}
@@ -171,6 +173,10 @@ func (b *DramaBusiness) List() (*DramaListResponse, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Hits.Hits) == 0 {
+		return nil, status.Errorf(codes.NotFound, "")
 	}
 
 	res := &DramaListResponse{}
@@ -183,8 +189,8 @@ func (b *DramaBusiness) List() (*DramaListResponse, error) {
 	}
 	highlightMap := make(map[int64]*highlightMapStruct)
 	for _, hit := range result.Hits.Hits {
-		idI, _ := strconv.Atoi(hit.Id)
-		id := int64(idI)
+		hitId, _ := strconv.Atoi(hit.Id)
+		id := int64(hitId)
 		dramaIds = append(dramaIds, id)
 		highlight := hit.Highlight
 		highlightStruct := highlightMapStruct{}
@@ -224,7 +230,6 @@ func (b *DramaBusiness) List() (*DramaListResponse, error) {
 func (b *DramaBusiness) ElasticSearch() (*elastic.SearchResult, error) {
 	d := &doc.DramaSearch{
 		Keyword:          b.Keyword,
-		Type:             b.Type,
 		IsHot:            b.IsHot,
 		IsNew:            b.IsNew,
 		IsVisible:        b.IsVisible,
@@ -248,10 +253,12 @@ func (b *DramaBusiness) ElasticSearch() (*elastic.SearchResult, error) {
 	h := doc.SetHighlight(highlightFields, highlightPreTags, highlightPostTags)
 	s := doc.SetSort(b.Sort)
 
+	from := (b.Page - 1) * b.PerPage
+
 	client := global.ES.Search()
 	client.Index(doc.Drama{}.GetIndexName())
 	client.Query(q)
-	client.From(int(b.Page))
+	client.From(int(from))
 	client.Size(int(b.PerPage))
 	client.Highlight(h)
 	if s != nil {

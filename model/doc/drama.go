@@ -31,7 +31,6 @@ type UpdateDrama struct {
 
 	Score float64 `json:"score"`
 
-	Type      string `json:"type"`
 	Name      string `json:"name"`
 	Introduce string `json:"introduce"`
 }
@@ -92,9 +91,6 @@ func (Drama) GetMapping() string {
             "score":{
                 "type":"float"
             },
-            "type":{
-                "type":"text"
-            },
             "name":{
                 "type":"text",
                 "analyzer":"ik_max_word"
@@ -130,7 +126,6 @@ func (Drama) GetMapping() string {
 
 type DramaSearch struct {
 	Keyword          string // 搜索
-	Type             string // 类型搜索
 	UserId           int64  // 用户id
 	IsHot            *bool  // 是否热度
 	IsNew            *bool  // 是否最新
@@ -151,10 +146,6 @@ func (s *DramaSearch) GetQuery() *elastic.BoolQuery {
 
 	if s.Keyword != "" { // 搜索 名称, 简介
 		q = q.Must(elastic.NewMultiMatchQuery(s.Keyword, "name", "introduce", "videos.name", "videos.introduce"))
-	}
-
-	if s.Type != "" { // 搜索类型
-		q = q.Filter(elastic.NewTermQuery("type", s.Type))
 	}
 
 	if s.UserId > 0 { // 搜索用户

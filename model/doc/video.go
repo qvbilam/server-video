@@ -18,7 +18,6 @@ type Video struct {
 
 	Score float64 `json:"score"`
 
-	Type      string `json:"type"`
 	Name      string `json:"name"`
 	Introduce string `json:"introduce"`
 }
@@ -83,9 +82,6 @@ func (Video) GetMapping() string {
             },
             "score":{
                 "type":"float"
-            },
-            "type":{
-                "type":"text"
             },
             "name":{
                 "type":"text",

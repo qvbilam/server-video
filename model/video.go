@@ -12,7 +12,6 @@ import (
 type Video struct {
 	IDModel
 	UserModel
-	Type           string  `gorm:"type:varchar(255); not null default '';comment:类型;anime:动漫,movie:影视"`
 	FileId         int64   `gorm:"type:int(11); not null default 0';comment:视频文件id"`
 	CategoryId     int64   `gorm:"type:int not null default 0;comment:分类id;index:idx_category_id"`
 	Name           string  `gorm:"type:varchar(255); not null default '';comment:名称"`
@@ -71,7 +70,6 @@ func (video *Video) AfterDelete(tx *gorm.DB) error {
 func (video *Video) ToDoc() *doc.Video {
 	return &doc.Video{
 		ID:            video.ID,
-		Type:          video.Type,
 		UserID:        video.UserID,
 		CategoryID:    video.CategoryId,
 		FavoriteCount: video.FavoriteCount,
