@@ -148,6 +148,12 @@ func (b *DramaBusiness) Delete() (int64, error) {
 		return 0, status.Errorf(codes.InvalidArgument, "参数错误")
 	}
 	tx := global.DB.Begin()
+	// 删除分集
+	dvb := DramaVideoBusiness{DramaId: b.Id}
+	if err := dvb.DeleteDramaVideos(tx); err != nil {
+		return 0, err
+	}
+	// 删除剧
 	res := tx.Where(model.Drama{IDModel: model.IDModel{ID: b.Id}}).Delete(model.Drama{})
 	if res.RowsAffected == 0 {
 		tx.Rollback()
@@ -155,7 +161,7 @@ func (b *DramaBusiness) Delete() (int64, error) {
 	}
 	if res.Error != nil {
 		tx.Rollback()
-		return 0, status.Errorf(codes.Internal, "更新失败")
+		return 0, status.Errorf(codes.Internal, "删除失败")
 	}
 	tx.Commit()
 	return res.RowsAffected, nil
@@ -208,6 +214,7 @@ func (b *DramaBusiness) List() (*DramaListResponse, error) {
 	}
 
 	var dramas []model.Drama
+	// todo 取消关联
 	if r := global.DB.Where("id IN ?", dramaIds).Preload("DramaVideos.Video").Find(&dramas); r.RowsAffected == 0 {
 		return nil, status.Errorf(codes.NotFound, "")
 	}
@@ -225,6 +232,16 @@ func (b *DramaBusiness) List() (*DramaListResponse, error) {
 	}
 	res.Dramas = &entityDramas
 	return res, nil
+}
+
+func (b *DramaBusiness) Detail() (*model.Drama, error) {
+	d := model.Drama{}
+	condition := model.Drama{IDModel: model.IDModel{ID: b.Id}}
+	// todo 关联部分数据 + isShow
+	if res := global.DB.Where(condition).Preload("DramaVideos.Video").First(&d, b.Id); res.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	return &d, nil
 }
 
 func (b *DramaBusiness) ElasticSearch() (*elastic.SearchResult, error) {

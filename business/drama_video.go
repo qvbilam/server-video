@@ -1,6 +1,7 @@
 package business
 
 import (
+	"fmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -72,6 +73,28 @@ func (b *DramaVideoBusiness) Update(tx *gorm.DB) (int64, error) {
 	}
 
 	return res.RowsAffected, nil
+}
+
+func (b *DramaVideoBusiness) DeleteDramaVideos(tx *gorm.DB) error {
+	var dramVideos []model.DramaVideo
+	var videoIds []int64
+	fmt.Println("==========================================================")
+	fmt.Printf("删除视频\n")
+	fmt.Println("==========================================================")
+	if res := tx.Model(model.DramaVideo{}).Where(model.DramaVideo{DramaId: b.DramaId}).Select("id").Find(&dramVideos); res.RowsAffected != 0 {
+		if res := tx.Model(model.DramaVideo{}).Where(model.DramaVideo{DramaId: b.DramaId}).Delete(model.DramaVideo{}); res.RowsAffected == 0 {
+			return fmt.Errorf("删除分集失败")
+		}
+		for _, dv := range dramVideos {
+			videoIds = append(videoIds, dv.VideoId)
+		}
+		if len(videoIds) > 0 {
+			if err := tx.Model(model.Video{}).Where("id in ?", videoIds).Delete(model.Video{}).Error; err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (b *DramaVideoBusiness) Exists(tx *gorm.DB) error {

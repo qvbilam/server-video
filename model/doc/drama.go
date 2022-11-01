@@ -16,7 +16,7 @@ type UpdateDrama struct {
 	UserID        int64 `json:"user_id"`
 	RegionID      int64 `json:"region_id"`
 	CategoryID    int64 `json:"category_id"`
-	EpisodeCount  int64 `json:"episode_count"`
+	TotalCount    int64 `json:"total_count"`
 	FavoriteCount int64 `json:"favorite_count"`
 	LikeCount     int64 `json:"like_count"`
 	PlayCount     int64 `json:"play_count"`
@@ -61,7 +61,7 @@ func (Drama) GetMapping() string {
             "category_id":{
                 "type":"integer"
             },
-            "episode_count":{
+            "total_count":{
                 "type":"integer"
             },
             "favorite_count":{

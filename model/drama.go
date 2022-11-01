@@ -22,7 +22,7 @@ type Drama struct {
 	HorizontalCover string  `gorm:"type:varchar(255); not null default '';comment:纵版封面"`
 	Score           float64 `gorm:"type:decimal(1,1);not null default 0;comment:评分"`
 	NewEpisode      int64   `gorm:"type:int; not null default 0;comment:剧集"`
-	EpisodeCount    int64   `gorm:"type:int; not null default 0;comment:剧集数"`
+	TotalCount      int64   `gorm:"type:int; not null default 0;comment:剧集数"`
 	FavoriteCount   int64   `gorm:"type:int; not null default 0;comment:收藏数量"`
 	LikeCount       int64   `gorm:"type:int; not null default 0;comment:点赞数量"`
 	PlayCount       int64   `gorm:"type:int; not null default 0;comment:播放数量"`
@@ -84,7 +84,7 @@ func (drama *Drama) ToDoc() *doc.UpdateDrama {
 		UserID:        drama.UserID,
 		RegionID:      drama.RegionId,
 		CategoryID:    drama.CategoryId,
-		EpisodeCount:  drama.EpisodeCount,
+		TotalCount:    drama.TotalCount,
 		FavoriteCount: drama.FavoriteCount,
 		LikeCount:     drama.LikeCount,
 		PlayCount:     drama.PlayCount,

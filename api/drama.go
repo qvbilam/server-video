@@ -89,18 +89,18 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 	res := &proto.DramaListResponse{}
 	res.Total = model.Total
 	for _, m := range *model.Dramas {
-		var episodes []*proto.EpisodeResponse
-		for _, e := range *m.DramaVideos {
-			episodes = append(episodes, &proto.EpisodeResponse{
-				Id:      e.ID,
-				Episode: e.Episode,
-				Video: &proto.VideoResponse{
-					Id:        e.Video.ID,
-					Name:      e.Video.Name,
-					Introduce: e.Video.Introduce,
-				},
-			})
-		}
+		//var episodes []*proto.EpisodeResponse
+		//for _, e := range *m.DramaVideos {
+		//	episodes = append(episodes, &proto.EpisodeResponse{
+		//		Id:      e.ID,
+		//		Episode: e.Episode,
+		//		Video: &proto.VideoResponse{
+		//			Id:        e.Video.ID,
+		//			Name:      e.Video.Name,
+		//			Introduce: e.Video.Introduce,
+		//		},
+		//	})
+		//}
 
 		res.Drama = append(res.Drama, &proto.DramaResponse{
 			Id:              m.ID,
@@ -109,7 +109,7 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 			Cover:           m.Cover,
 			HorizontalCover: m.HorizontalCover,
 			Score:           float32(m.Score),
-			EpisodeCount:    m.EpisodeCount,
+			TotalCount:      m.TotalCount,
 			FavoriteCount:   m.FavoriteCount,
 			LikeCount:       m.LikeCount,
 			PlayCount:       m.PlayCount,
@@ -117,8 +117,8 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 			IsNew:           m.IsNew,
 			IsHot:           m.IsHot,
 			IsEnd:           m.IsEnd,
-			Episode:         episodes,
-			CreatedTime:     m.CreatedAt.Unix(),
+			//Episode:         episodes,
+			CreatedTime: m.CreatedAt.Unix(),
 		})
 	}
 
@@ -126,5 +126,32 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 }
 
 func (s *DramaServer) GetDetail(ctx context.Context, request *proto.SearchDramaRequest) (*proto.DramaResponse, error) {
+	b := business.DramaBusiness{Id: request.Id, IsVisible: &request.IsVisible}
+	entity, err := b.Detail()
+	if err != nil {
+		return nil, err
+	}
+	res := proto.DramaResponse{
+		Id:              entity.ID,
+		Name:            entity.Name,
+		Introduce:       entity.Introduce,
+		Cover:           entity.Cover,
+		HorizontalCover: entity.HorizontalCover,
+		Score:           float32(entity.Score),
+		NewEpisode:      entity.NewEpisode,
+		FavoriteCount:   entity.FavoriteCount,
+		LikeCount:       entity.LikeCount,
+		PlayCount:       entity.PlayCount,
+		BarrageCount:    entity.BarrageCount,
+		TotalCount:      entity.BarrageCount,
+		IsRecommend:     false,
+		IsNew:           entity.IsNew,
+		IsHot:           entity.IsHot,
+		IsEnd:           entity.IsEnd,
+		CreatedTime:     entity.CreatedAt.Unix(),
+	}
+	res.Category = nil
+	res.Region = nil
+	res.Episode = nil
 	return nil, status.Error(codes.Unimplemented, "")
 }

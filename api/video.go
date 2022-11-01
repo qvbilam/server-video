@@ -69,7 +69,7 @@ func (s *VideoServer) Update(ctx context.Context, request *proto.UpdateVideoRequ
 }
 
 func (s *VideoServer) Delete(ctx context.Context, request *proto.UpdateVideoRequest) (*emptypb.Empty, error) {
-	videoBusiness := business.VideoBusiness{Id: request.Id}
+	videoBusiness := business.VideoBusiness{Id: request.Id, DramaId: request.DramaId}
 	_, err := videoBusiness.Delete()
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())

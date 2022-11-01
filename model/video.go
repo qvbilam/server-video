@@ -63,7 +63,9 @@ func (video *Video) AfterDelete(tx *gorm.DB) error {
 		Index(doc.Video{}.GetIndexName()).
 		Id(strconv.Itoa(int(video.ID))).
 		Do(context.Background())
-
+	if err.Error() == doc.ErrorNotfound() { // 忽略未找到错误
+		return nil
+	}
 	return err
 }
 

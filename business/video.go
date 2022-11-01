@@ -143,11 +143,12 @@ func (b *VideoBusiness) Update() (int64, error) {
 
 func (b *VideoBusiness) Delete() (int64, error) {
 	tx := global.DB.Begin()
+	if b.DramaId != 0 {
+		tx.Where(model.DramaVideo{DramaId: b.DramaId, VideoId: b.Id}).Delete(&model.DramaVideo{DramaId: b.DramaId, VideoId: b.Id})
+	}
 
 	// 注意: 删除实体进入afterDelete是获取不到ID的. 需要在模型中传入请求的参数id
-	res := tx.Where(b.Id).Delete(&model.Video{
-		IDModel: model.IDModel{ID: b.Id},
-	}, b.Id)
+	res := tx.Delete(&model.Video{IDModel: model.IDModel{ID: b.Id}})
 	if res.Error != nil {
 		tx.Rollback()
 		return 0, status.Errorf(codes.Internal, "删除异常: %s", res.Error)
