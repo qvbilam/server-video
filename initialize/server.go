@@ -14,10 +14,12 @@ import (
 type dialConfig struct {
 	host string
 	port int64
+	name string
 }
 
 type serverClientConfig struct {
 	userDialConfig *dialConfig
+	fileDialConfig *dialConfig
 }
 
 func InitServer() {
@@ -25,6 +27,7 @@ func InitServer() {
 		userDialConfig: &dialConfig{
 			host: global.ServerConfig.UserServerConfig.Host,
 			port: global.ServerConfig.UserServerConfig.Port,
+			name: global.ServerConfig.UserServerConfig.Name,
 		},
 	}
 
@@ -49,7 +52,7 @@ func (s *serverClientConfig) initUserServer() {
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(retry.UnaryClientInterceptor(opts...)))
 	if err != nil {
-		zap.S().Fatalf("%s dial error: %s", global.ServerConfig.UserServerConfig.Name, err)
+		zap.S().Fatalf("%s dial error: %s", s.userDialConfig.name, err)
 	}
 
 	userClient := userProto.NewUserClient(conn)

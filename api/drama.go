@@ -2,8 +2,6 @@ package api
 
 import (
 	"context"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	proto "video/api/qvbilam/video/v1"
 	"video/business"
@@ -89,18 +87,18 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 	res := &proto.DramaListResponse{}
 	res.Total = model.Total
 	for _, m := range *model.Dramas {
-		//var episodes []*proto.EpisodeResponse
-		//for _, e := range *m.DramaVideos {
-		//	episodes = append(episodes, &proto.EpisodeResponse{
-		//		Id:      e.ID,
-		//		Episode: e.Episode,
-		//		Video: &proto.VideoResponse{
-		//			Id:        e.Video.ID,
-		//			Name:      e.Video.Name,
-		//			Introduce: e.Video.Introduce,
-		//		},
-		//	})
-		//}
+		var episodes []*proto.EpisodeResponse
+		for _, e := range *m.DramaVideos {
+			episodes = append(episodes, &proto.EpisodeResponse{
+				Id:      e.ID,
+				Episode: e.Episode,
+				Video: &proto.VideoResponse{
+					Id:        e.Video.ID,
+					Name:      e.Video.Name,
+					Introduce: e.Video.Introduce,
+				},
+			})
+		}
 
 		res.Drama = append(res.Drama, &proto.DramaResponse{
 			Id:              m.ID,
@@ -125,7 +123,7 @@ func (s *DramaServer) Get(ctx context.Context, request *proto.SearchDramaRequest
 	return res, nil
 }
 
-func (s *DramaServer) GetDetail(ctx context.Context, request *proto.SearchDramaRequest) (*proto.DramaResponse, error) {
+func (s *DramaServer) Detail(ctx context.Context, request *proto.SearchDramaRequest) (*proto.DramaResponse, error) {
 	b := business.DramaBusiness{Id: request.Id, IsVisible: &request.IsVisible}
 	entity, err := b.Detail()
 	if err != nil {
@@ -152,6 +150,20 @@ func (s *DramaServer) GetDetail(ctx context.Context, request *proto.SearchDramaR
 	}
 	res.Category = nil
 	res.Region = nil
-	res.Episode = nil
-	return nil, status.Error(codes.Unimplemented, "")
+
+	var episodes []*proto.EpisodeResponse
+	for _, e := range *entity.DramaVideos {
+		episodes = append(episodes, &proto.EpisodeResponse{
+			Id:      e.ID,
+			Episode: e.Episode,
+			Video: &proto.VideoResponse{
+				Id:        e.Video.ID,
+				Name:      e.Video.Name,
+				Introduce: e.Video.Introduce,
+			},
+		})
+	}
+	res.Episode = episodes
+
+	return &res, nil
 }

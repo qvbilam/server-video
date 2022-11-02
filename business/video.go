@@ -6,6 +6,8 @@ import (
 	"github.com/olivere/elastic/v7"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"video/global"
 	"video/model"
 	"video/model/doc"
@@ -56,6 +58,8 @@ type VideoBusiness struct {
 	PerPage int64
 	// 排序方式
 	Sort string
+	// IP
+	IP string
 }
 
 func (b *VideoBusiness) Create() (int64, error) {
@@ -225,6 +229,32 @@ func (b *VideoBusiness) List() (*VideoListResponse, error) {
 		Total:  total,
 		Videos: videos,
 	}, nil
+}
+
+func (b *VideoBusiness) Play() error {
+	// todo 增加ip 缓存
+	tx := global.DB.Begin()
+	// 增加视频播放数量
+	entity := model.Video{}
+	if res := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where(model.Video{IDModel: model.IDModel{ID: b.Id}}).First(&entity); res.RowsAffected == 0 {
+		tx.Rollback()
+		return status.Errorf(codes.NotFound, "视频不存在")
+	}
+	entity.PlayCount += b.PlayCount
+	tx.Save(&entity)
+
+	// 获取剧集
+	dvb := DramaVideoBusiness{}
+	dramaId := dvb.GetVideoDramaId(tx)
+	if dramaId > 0 {
+		res := tx.Model(model.Drama{IDModel: model.IDModel{ID: b.Id}}).Update("play_count", gorm.Expr("play_count + ?", b.PlayCount))
+		if res.RowsAffected == 0 {
+			tx.Rollback()
+			return status.Errorf(codes.Internal, "更新剧播放数量失败: %s", res.Error)
+		}
+	}
+	tx.Commit()
+	return nil
 }
 
 func (b *VideoBusiness) ToUpdateModel(video *model.Video) {

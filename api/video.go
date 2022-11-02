@@ -120,13 +120,26 @@ func (s *VideoServer) Get(ctx context.Context, request *proto.SearchVideoRequest
 }
 
 func (s *VideoServer) GetDetail(ctx context.Context, request *proto.GetVideoRequest) (*proto.VideoResponse, error) {
-	videoBusiness := business.VideoBusiness{}
+	videoBusiness := business.VideoBusiness{Id: request.Id}
 	res, err := videoBusiness.Detail()
 	if err != nil {
 		return nil, err
 	}
 	response := modelToResponse(*res)
 	return &response, nil
+}
+
+func (s *VideoServer) Play(ctx context.Context, request *proto.UpdateVideoRequest) (*emptypb.Empty, error) {
+	videoBusiness := business.VideoBusiness{
+		Id:        request.Id,
+		IP:        request.Ip,
+		PlayCount: request.PlayCount,
+	}
+	// todo 验证是否增加播放量
+	if err := videoBusiness.Play(); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
 
 func searchRequestToCondition(request *proto.SearchVideoRequest) business.VideoBusiness {

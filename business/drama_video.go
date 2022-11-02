@@ -113,3 +113,12 @@ func (b *DramaVideoBusiness) Exists(tx *gorm.DB) error {
 
 	return nil
 }
+
+func (b *DramaVideoBusiness) GetVideoDramaId(tx *gorm.DB) int64 {
+	condition := model.DramaVideo{VideoId: b.VideoId}
+	entity := model.DramaVideo{}
+	if res := tx.Where(condition).Select("id").First(&entity); res.RowsAffected == 0 {
+		return 0
+	}
+	return entity.ID
+}

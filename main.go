@@ -18,6 +18,7 @@ func main() {
 	initialize.InitLogger()
 	initialize.InitConfig()
 	initialize.InitDatabase()
+	initialize.InitRedis()
 	initialize.InitElasticSearch()
 	initialize.InitServer()
 
