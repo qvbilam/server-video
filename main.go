@@ -31,7 +31,7 @@ func main() {
 
 	Host := "0.0.0.0"
 	Port, _ := utils.GetFreePort()
-	Port = 9802
+	Port = global.ServerConfig.Port
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", Host, Port))
 	if err != nil {

@@ -1,0 +1,118 @@
+# video.deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-server
+  labels:
+    app: video-server
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: video-server
+  template:
+    metadata:
+      labels:
+        app: video-server
+    spec:
+      containers:
+        - name: video-server
+          image: registry.cn-hangzhou.aliyuncs.com/qvbilam/video-server:1.0.0
+          # 不存在拉取
+          # imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
+          ports: # 容器内部使用端口
+            - containerPort: 9501
+          env:
+            # 服务配置
+            - name: SERVER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: server_name
+                  name: video
+
+            # 数据库配置
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: db_host
+                  name: video
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: db_port
+                  name: video
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: db_user
+                  name: video
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: db_password
+                  name: video
+            - name: DB_DATABSE
+              valueFrom:
+                configMapKeyRef:
+                  key: db_database
+                  name: video
+
+            # es 配置
+            - name: ES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: es_host
+                  name: video
+            - name: ES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: es_port
+                  name: video
+
+            # 缓存配置
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: redis_host
+                  name: video
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: redis_port
+                  name: video
+            - name: REDIS_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: redis_password
+                  name: video
+            - name: REDIS_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  key: redis_database
+                  name: video
+
+            # 用户服务
+            - name: USER-SERVER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: user-server_name
+                  name: video
+            - name: USER-SERVER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: user-server_host
+                  name: video
+            - name: USER-SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: user-server_port
+                  name: video
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+      imagePullSecrets:
+        - name: ali-image-key
