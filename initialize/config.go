@@ -10,8 +10,8 @@ import (
 )
 
 func InitConfig() {
-	initViperConfig()
 	initEnvConfig()
+	initViperConfig()
 }
 
 func initEnvConfig() {
@@ -46,8 +46,14 @@ func initEnvConfig() {
 }
 
 func initViperConfig() {
+	file := "config.yaml"
+	_, err := os.Stat(file)
+	if os.IsNotExist(err) {
+		return
+	}
+
 	v := viper.New()
-	v.SetConfigFile("config.yaml")
+	v.SetConfigFile(file)
 	// 读取配置文件
 	if err := v.ReadInConfig(); err != nil {
 		zap.S().Panicf("获取配置异常: %s", err)
