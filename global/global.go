@@ -12,6 +12,6 @@ var (
 	DB               *gorm.DB
 	ES               *elastic.Client
 	RedisClient      *redis.Client
-	ServerConfig     config.ServerConfig
+	ServerConfig     *config.ServerConfig
 	UserServerClient userProto.UserClient
 )

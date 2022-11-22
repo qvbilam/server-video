@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"strconv"
+	"video/config"
 	"video/global"
 )
 
@@ -22,6 +23,10 @@ func initEnvConfig() {
 	redisPort, _ := strconv.Atoi(os.Getenv("REDIS_HOST"))
 	redisDb, _ := strconv.Atoi(os.Getenv("REDIS_PASSWORD"))
 	userServerPort, _ := strconv.Atoi(os.Getenv("USER-SERVER_PORT"))
+
+	if global.ServerConfig == nil {
+		global.ServerConfig = &config.ServerConfig{}
+	}
 
 	global.ServerConfig.Name = os.Getenv("SERVER_NAME")
 	global.ServerConfig.Port = serverPort
