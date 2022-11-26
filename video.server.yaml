@@ -6,6 +6,8 @@ spec:
   selector:
     app: video-server
   ports:
-    - protocol: TCP
+    - name: grpc-video-server
+      protocol: TCP
       port: 9802
+      targetPort: 9501
   type: LoadBalancer
