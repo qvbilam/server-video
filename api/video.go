@@ -142,6 +142,18 @@ func (s *VideoServer) Play(ctx context.Context, request *proto.UpdateVideoReques
 	return nil, nil
 }
 
+func (s VideoServer) Barrage(ctx context.Context, request *proto.UpdateVideoRequest) (*emptypb.Empty, error) {
+	videoBusiness := business.VideoBusiness{
+		Id:        request.Id,
+		IP:        request.Ip,
+		PlayCount: request.PlayCount,
+	}
+	if err := videoBusiness.Barrage(); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 func searchRequestToCondition(request *proto.SearchVideoRequest) business.VideoBusiness {
 	return business.VideoBusiness{
 		UserId:           request.UserId,

@@ -100,6 +100,7 @@ service Video{
   rpc Get(SearchVideoRequest) returns (VideosResponse); // 视频列表
   rpc GetDetail(GetVideoRequest) returns (VideoResponse); // 视频详情
   rpc Play(UpdateVideoRequest) returns (google.protobuf.Empty);
+  rpc Barrage(UpdateVideoRequest) returns (google.protobuf.Empty);
   rpc Like(UpdateVideoRequest) returns (google.protobuf.Empty);
   rpc Favorite(UpdateVideoRequest) returns (google.protobuf.Empty);
 }

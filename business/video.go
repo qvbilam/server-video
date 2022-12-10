@@ -109,7 +109,7 @@ func (b *VideoBusiness) Create() (int64, error) {
 func (b *VideoBusiness) Update() (int64, error) {
 	tx := global.DB.Begin()
 	videoEntity := &model.Video{}
-	if res := global.DB.First(videoEntity, b.Id); res.RowsAffected == 0 {
+	if res := tx.First(videoEntity, b.Id); res.RowsAffected == 0 {
 		tx.Rollback()
 		return 0, status.Errorf(codes.NotFound, "视频不存在")
 	}
@@ -117,7 +117,7 @@ func (b *VideoBusiness) Update() (int64, error) {
 	// business 参数转 model
 	b.ToUpdateModel(videoEntity)
 
-	res := global.DB.Save(&videoEntity)
+	res := tx.Save(&videoEntity)
 	if res.Error != nil {
 		tx.Rollback()
 		return 0, status.Errorf(codes.Internal, "修改异常: %s", res.Error)
@@ -251,6 +251,31 @@ func (b *VideoBusiness) Play() error {
 		if res.RowsAffected == 0 {
 			tx.Rollback()
 			return status.Errorf(codes.Internal, "更新剧播放数量失败: %s", res.Error)
+		}
+	}
+	tx.Commit()
+	return nil
+}
+
+func (b *VideoBusiness) Barrage() error {
+	tx := global.DB.Begin()
+	entity := model.Video{}
+
+	if res := tx.Clauses(clause.Locking{Strength: "Update"}).Where(model.Video{IDModel: model.IDModel{ID: b.Id}}).First(&entity); res.RowsAffected == 0 {
+		tx.Rollback()
+		return status.Errorf(codes.NotFound, "视频不存在")
+	}
+	entity.BarrageCount += 1
+	tx.Save(&entity)
+
+	// 获取剧集
+	dvb := DramaVideoBusiness{}
+	dramaId := dvb.GetVideoDramaId(tx)
+	if dramaId > 0 {
+		res := tx.Model(model.Drama{IDModel: model.IDModel{ID: b.Id}}).Update("play_count", gorm.Expr("play_count + ?", b.PlayCount))
+		if res.RowsAffected == 0 {
+			tx.Rollback()
+			return status.Errorf(codes.Internal, "更新弹幕失败: %s", res.Error)
 		}
 	}
 	tx.Commit()
