@@ -29,6 +29,7 @@ type VideoClient interface {
 	Get(ctx context.Context, in *SearchVideoRequest, opts ...grpc.CallOption) (*VideosResponse, error)
 	GetDetail(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*VideoResponse, error)
 	Play(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Barrage(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Like(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Favorite(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -95,6 +96,15 @@ func (c *videoClient) Play(ctx context.Context, in *UpdateVideoRequest, opts ...
 	return out, nil
 }
 
+func (c *videoClient) Barrage(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/video.pb.Video/Barrage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *videoClient) Like(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/video.pb.Video/Like", in, out, opts...)
@@ -123,6 +133,7 @@ type VideoServer interface {
 	Get(context.Context, *SearchVideoRequest) (*VideosResponse, error)
 	GetDetail(context.Context, *GetVideoRequest) (*VideoResponse, error)
 	Play(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error)
+	Barrage(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error)
 	Like(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error)
 	Favorite(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedVideoServer()
@@ -149,6 +160,9 @@ func (UnimplementedVideoServer) GetDetail(context.Context, *GetVideoRequest) (*V
 }
 func (UnimplementedVideoServer) Play(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Play not implemented")
+}
+func (UnimplementedVideoServer) Barrage(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Barrage not implemented")
 }
 func (UnimplementedVideoServer) Like(context.Context, *UpdateVideoRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Like not implemented")
@@ -277,6 +291,24 @@ func _Video_Play_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Video_Barrage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateVideoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoServer).Barrage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/video.pb.Video/Barrage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoServer).Barrage(ctx, req.(*UpdateVideoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Video_Like_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateVideoRequest)
 	if err := dec(in); err != nil {
@@ -343,6 +375,10 @@ var Video_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Play",
 			Handler:    _Video_Play_Handler,
+		},
+		{
+			MethodName: "Barrage",
+			Handler:    _Video_Barrage_Handler,
 		},
 		{
 			MethodName: "Like",
