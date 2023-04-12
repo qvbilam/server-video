@@ -16,8 +16,8 @@ proto page page v1
 # 用户服务
 proto user user v1
 # 文件服务
-proto file video v1
-proto file image v1
+#proto file video v1
+#proto file image v1
 # 视频服务
 proto video category v1
 proto video drama v1
